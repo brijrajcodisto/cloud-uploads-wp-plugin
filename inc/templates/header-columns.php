@@ -1,7 +1,7 @@
 <div class="row mt-2">
 	<div class="col-12 col-lg-6 mb-4">
 		<?php
-		if ( infinite_uploads_enabled() ) {
+		if (  get_site_option( 's3up_enabled' ) ) {
 			require_once( dirname( __FILE__ ) . '/cloud-overview.php' );
 		} else {
 			require_once( dirname( __FILE__ ) . '/sync.php' );

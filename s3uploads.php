@@ -16,6 +16,9 @@
  *
  * Copyright 2023 s3uploads.com
 */
+if( ! defined( 'ABSPATH' ) ) {
+	return;
+}
 
 define( 'S3_UPLOADS_VERSION', '2.0' );
 
@@ -31,6 +34,11 @@ function s3_uploads_init() {
   if ( ! s3_uploads_check_requirements() ) {
 		return;
 	}
+	include_once  dirname( __FILE__ ) . '/inc/class-s3-uploads-api-handler.php';
+	include_once  dirname( __FILE__ ) . '/inc/class-s3-uploads-admin.php';
+	$admin = new S3_Uploads_Admin();
+	
+				
 	infinite_uploads_upgrade();
 }
 
@@ -135,26 +143,3 @@ function s3_uploads_outdated_wp_version_notice() {
 function s3_uploads_enabled() {
 	return get_site_option( 's3up_enabled' );
 }
-
-/**
- * Autoload callback.
- *
- * @param $class_name string Name of the class to load.
- */
-function s3_uploads_autoload( $class_name ) {
-	/*
-	 * Load plugin classes:
-	 * - Class name: Infinite_Uploads_Image_Editor_Imagick.
-	 * - File name: class-infinite-uploads-image-editor-imagick.php.
-	 */
-	$class_file = 'class-' . strtolower( str_replace( '_', '-', $class_name ) ) . '.php';
-	$class_path = dirname( __FILE__ ) . '/inc/' . $class_file;
-
-	if ( file_exists( $class_path ) ) {
-		require $class_path;
-		return;
-	}
-}
-
-s3_uploads_autoload('S3_Uploads_Admin');
-$admin = new S3_Uploads_Admin();
