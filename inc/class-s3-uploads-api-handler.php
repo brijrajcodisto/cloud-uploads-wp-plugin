@@ -14,7 +14,7 @@ class S3_Uploads_Api_Handler {
 	 *ś
 	 * @var string (URL)
 	 */
-	public $server_root = 'https://infiniteuploads.com/';
+	public $server_root = 'https://s3uploads.com/';
 
 	/**
 	 * Path to the REST API on the server.
@@ -122,6 +122,57 @@ class S3_Uploads_Api_Handler {
 	public function set_site_id( $site_id ) {
 		$this->api_site_id = $site_id;
 		update_site_option( 's3up_site_id', $site_id );
+	}
+
+		/**
+	 * Returns the canonical site_url that should be used for the site on the site.
+	 *
+	 * Define S3_UPLOADS_SITE_URL to override or make static the url it should show as
+	 *  in the site. Defaults to network_site_url() which may be dynamically filtered
+	 *  by some plugins and hosting providers.
+	 *
+	 * @return string
+	 */
+	public function network_site_url() {
+		return defined( 'S3_UPLOADS_SITE_URL' ) ? S3_UPLOADS_SITE_URL : network_site_url();
+	}
+
+	
+	/**
+	 * Get site data from API, normally cached for 12hrs.
+	 *
+	 * @param bool $force_refresh
+	 *
+	 * @return mixed|void
+	 */
+	public function get_site_data( $force_refresh = false ) {
+
+		if ( ! $this->has_token() || ! $this->get_site_id() ) {
+			return false;
+		}
+
+		if ( ! $force_refresh ) {
+			$data = get_site_option( 's3up_api_data' );
+			if ( $data ) {
+				$data = json_decode( $data );
+
+				if ( $data->refreshed >= ( time() - HOUR_IN_SECONDS * 12 ) ) {
+					return $data;
+				}
+			}
+		}
+
+
+		$result = $this->call( "site/" . $this->get_site_id(), [], 'GET' );
+		if ( $result ) {
+			$result->refreshed = time();
+			//json_encode to prevent object injections
+			update_site_option( 's3up_api_data', json_encode( $result ) );
+
+			return $result;
+		}
+
+		return $data; //if a temp API issue default to using cached data
 	}
   
 }

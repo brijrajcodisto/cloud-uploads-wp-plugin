@@ -95,18 +95,18 @@ body.mobile.modal-open #wpwrap {
     margin-right: 1rem;
 }
 
-#iup-settings-page .progress {
+#s3up-settings-page .progress {
     height: 30px;
     border-radius: 15px;
     padding: 5px;
 }
 
-#iup-settings-page .progress .progress-bar {
+#s3up-settings-page .progress .progress-bar {
     background-color: rgba(38, 169, 224, 1);
     border-radius: 10px;
 }
 
-#iup-settings-page .progress.download .progress-bar {
+#s3up-settings-page .progress.download .progress-bar {
     background-color: #EE7C1E;
 }
 
@@ -136,17 +136,17 @@ body.mobile.modal-open #wpwrap {
   margin-bottom: 0 !important;
 }
 
-#iup-sync-errors, #iup-download-errors {
+#s3up-sync-errors, #s3up-download-errors {
   height: 3em;
   display: none;
   overflow-y: scroll;
 }
 
-.iup-enabled-status .dashicons {
+.s3up-enabled-status .dashicons {
   font-size: 25px;
 }
 
-.iup-enabled-status .dashicons-cloud-saved, .iup-enabled-status .dashicons-video-alt3 {
+.s3up-enabled-status .dashicons-cloud-saved, .s3up-enabled-status .dashicons-video-alt3 {
     color: rgba(38, 169, 224, 1);
 }
 
@@ -154,11 +154,11 @@ p.lead {
   font-size: 1em;
 }
 
-#iup-footer .text-muted {
+#s3up-footer .text-muted {
   color: rgba(108, 117, 125, 0.5) !important;
 }
 
-.iup-refresh-icon .dashicons {
+.s3up-refresh-icon .dashicons {
   font-size: 25px;
 }
 
@@ -167,37 +167,37 @@ p.lead {
   font-weight: 500;
 }
 
-#iup-error {
+#s3up-error {
   display: none;
 }
 
-#iup-scan-progress, #iup-scan-remote-progress, #iup-upload-progress, #iup-download-progress {
+#s3up-scan-progress, #s3up-scan-remote-progress, #s3up-upload-progress, #s3up-download-progress {
   display: none;
 }
 
-#iup-local-pie, #iup-cloud-pie, .iup-pie-wrapper {
+#s3up-local-pie, #s3up-cloud-pie, .s3up-pie-wrapper {
   max-height: 300px;
   max-width: 600px;
 }
 
-#iup-enable-errors .alert-link {
+#s3up-enable-errors .alert-link {
   float: right;
 }
 
-#iup-enable-errors .alert-link:hover {
+#s3up-enable-errors .alert-link:hover {
   text-decoration: none;
 }
 
-#iup-enable-errors .dashicons {
+#s3up-enable-errors .dashicons {
   line-height: 1.2;
 }
 
-#iup-collapse-errors {
+#s3up-collapse-errors {
   max-height: 200px;
   overflow-y: scroll;
 }
 
-#iup-collapse-errors .list-group-item {
+#s3up-collapse-errors .list-group-item {
     padding: 0.25rem 1.25rem;
     margin: 0;
 }
@@ -215,7 +215,7 @@ li.nav-item {
     margin-top: .25em;
 }
 
-.iup-video-thumb {
+.s3up-video-thumb {
     background-size: cover;
     background-position: 50% 50%;
     background-repeat: no-repeat;
@@ -250,4 +250,13 @@ li.nav-item {
 .uppy-DragDrop-arrow {
     width: 40px;
     height: 40px;
+}
+#run-scan {
+
+}
+#running {
+  display: none;
+}
+#running svg {
+  width: 30px;
 }

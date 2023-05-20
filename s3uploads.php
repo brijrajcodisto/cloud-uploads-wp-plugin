@@ -35,18 +35,19 @@ function s3_uploads_init() {
 		return;
 	}
 	include_once  dirname( __FILE__ ) . '/inc/class-s3-uploads-api-handler.php';
+	include_once  dirname( __FILE__ ) . '/inc/class-s3-uploads-filelist.php';
 	include_once  dirname( __FILE__ ) . '/inc/class-s3-uploads-admin.php';
 	$admin = new S3_Uploads_Admin();
 	
 				
-	infinite_uploads_upgrade();
+	s3_uploads_upgrade();
 }
 
-function infinite_uploads_upgrade() {
+function s3_uploads_upgrade() {
 	// Install the needed DB table if not already.
 	$installed = get_site_option( 's3up_installed' );
 	if ( S3_UPLOADS_VERSION != $installed ) {
-		infinite_uploads_install();
+		s3_uploads_install();
 	}
 }
 
@@ -113,7 +114,7 @@ function s3_uploads_check_requirements() {
  *
  * This has to be a named function for compatibility with PHP 5.2.
  */
-function s3e_uploads_outdated_php_version_notice() {
+function s3_uploads_outdated_php_version_notice() {
 	?>
 	<div class="notice notice-warning is-dismissible"><p>
 			<?php printf( esc_html__( 'The S3 Uploads plugin requires PHP version 5.5.0 or higher. Your server is running PHP version %s.', 's3-uploads' ), PHP_VERSION ); ?>
