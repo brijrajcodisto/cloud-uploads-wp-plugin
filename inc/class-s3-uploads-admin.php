@@ -83,7 +83,7 @@ class S3_Uploads_Admin {
 	}
 
   function setup_menu(){
-    $page = add_menu_page( 'S3 Uploads', 'S3 Uploads', 'manage_options', 's3-uploads',  [ &$this, 'settings_page' ] );
+    $page = add_menu_page( 'S3 Uploads', 'S3 Uploads', 'manage_options', 's3-uploads',  [ &$this, 'settings_page' ], plugins_url( 'assets/img/logo-menu.png', __FILE__ ) );
     add_action( 'admin_print_scripts-' . $page, [ &$this, 'admin_scripts' ] );
 		add_action( 'admin_print_styles-' . $page, [ &$this, 'admin_styles' ] );
   }
