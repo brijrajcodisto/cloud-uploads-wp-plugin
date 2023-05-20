@@ -1,7 +1,7 @@
 <?php
 /*
  * Plugin Name: S3 Uploads
- * Description: Infinitely scalable cloud storage and delivery for your videos and uploads made easy! Upload directly to cloud storage and manage your files right from the WordPress Media Library.
+ * Description: Migrate and store your wordpress upload files remotely on cloud storage along with cdn for fast delivery.
  * Version: 2.0
  * Author: S3 Uploads
  * Author URI: https://s3uploads.com
@@ -12,7 +12,6 @@
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Network: true
  *
- * Inspired by AWS PHP SDK stream wrapper code from the S3 Uploads plugin by Human Made https://github.com/humanmade/S3-Uploads.
  *
  * Copyright 2023 s3uploads.com
 */

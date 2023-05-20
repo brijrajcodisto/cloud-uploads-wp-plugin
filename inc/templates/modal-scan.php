@@ -15,7 +15,7 @@
 								<?php include( dirname( dirname( __FILE__ ) ) . '/assets/img/spinner-svg.html' ); ?>
 							</div>
 							<h4><?php esc_html_e( 'Scanning Local Filesystem', 's3-uploads' ); ?></h4>
-							<p class="lead"><?php esc_html_e( "This usually only takes a minute or two but can take longer for very large media libraries with a lot of files. Please leave this tab open while we complete your scan.", 'infinite-uploads' ); ?></p>
+							<p class="lead"><?php esc_html_e( "This usually only takes a minute or two but can take longer for very large media libraries with a lot of files. Please leave this tab open while we complete your scan.", 's3-uploads' ); ?></p>
 						</div>
 					</div>
 					<div class="row justify-content-center mb-4">

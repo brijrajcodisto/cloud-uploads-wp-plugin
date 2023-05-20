@@ -27,8 +27,8 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-lg col-xs-12 mt-5 mt-lg-0 text-center iup-pie-wrapper">
-				<canvas id="iup-local-pie"></canvas>
+			<div class="col-lg col-xs-12 mt-5 mt-lg-0 text-center s3up-pie-wrapper">
+				<canvas id="s3up-local-pie"></canvas>
 			</div>
 		</div>
 		<div class="row justify-content-center mb-3">
@@ -39,7 +39,7 @@
 		</div>
 		<div class="row justify-content-center mb-5">
 			<div class="col text-center">
-				<form method="post" action="https://s3uploads.com/connect/?utm_source=iup_plugin&utm_medium=plugin&utm_campaign=bfu_plugin&utm_term=connect">
+				<form method="post" action="https://s3uploads.com/connect/?utm_source=s3up_plugin&utm_medium=plugin&utm_campaign=bfu_plugin&utm_term=connect">
 					<input type="hidden" name="action" value="s3up_connect">
 					<input type="hidden" name="site_id" value="<?php echo esc_attr( $this->api->get_site_id() ); ?>">
 					<input type="hidden" name="domain" value="<?php echo esc_url( $this->api->network_site_url() ); ?>">

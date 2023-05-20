@@ -6,11 +6,22 @@ class S3_Uploads_Admin {
 	private $capability;
 	public $ajax_timelimit = 20;
 	private $local_sync;
+	private $auth_error;
 
   public function __construct() {
     $this->api = new S3_Uploads_Api_Handler();
 		$this->capability = apply_filters( 's3_uploads_settings_capability', ( is_multisite() ? 'manage_network_options' : 'manage_options' ) );
-    add_action('admin_menu',  [ &$this, 'setup_menu' ]);
+
+		if ( is_multisite() ) {
+			//multisite
+			add_action('admin_menu',  [ &$this, 'setup_menu' ]);
+			add_action( 'load-settings_page_s3_uploads', [ &$this, 'intercept_auth' ] );
+		} else {
+			//single site
+			add_action('admin_menu',  [ &$this, 'setup_menu' ]);
+			add_action( 'load-toplevel_page_s3_uploads', [ &$this, 'intercept_auth' ] );
+		}
+    
     if ( is_main_site() ) {
 			add_action( 'wp_ajax_s3-uploads-filelist', [ &$this, 'ajax_filelist' ] );
 			add_action( 'wp_ajax_s3-uploads-remote-filelist', [ &$this, 'ajax_remote_filelist' ] );
@@ -46,20 +57,20 @@ class S3_Uploads_Admin {
 	 */
 	function settings_url( $args = [] ) {
 		if ( is_multisite() ) {
-			$base = network_admin_url( 'admin.php?page=infinite_uploads' );
+			$base = network_admin_url( 'admin.php?page=s3_uploads' );
 		} else {
-			$base = admin_url( 'admin.php?page=infinite_uploads' );
+			$base = admin_url( 'admin.php?page=s3_uploads' );
 		}
 
 		return add_query_arg( $args, $base );
 	}
 
 	/**
-	 * Get a url to the public Infinite Uploads site.
+	 * Get a url to the public S3 Uploads site.
 	 *
 	 * @param string $path Optional path on the site.
 	 *
-	 * @return Infinite_Uploads_Api_Handler|string
+	 * @return S3_Uploads_Api_Handler|string
 	 */
 	function api_url( $path = '' ) {
 		$url = trailingslashit( $this->api->server_root );
@@ -177,6 +188,38 @@ class S3_Uploads_Admin {
 		wp_enqueue_style( 's3up-styles', plugins_url( 'assets/css/admin.css', __FILE__ ), [ 's3up-bootstrap' ], S3_UPLOADS_VERSION );
 	}
 
+		/**
+	 * Checks for temp_token in url and processes auth if present.
+	 */
+	function intercept_auth() {
+		if ( ! current_user_can( $this->capability ) ) {
+			wp_die( esc_html__( 'Permissions Error: Please refresh the page and try again.', 's3-uploads' ) );
+		}
+
+		if ( ! empty( $_GET['temp_token'] ) ) {
+			$result = $this->api->authorize( $_GET['temp_token'] );
+			if ( ! $result ) {
+				$this->auth_error = $this->api->api_error;
+			} else {
+				wp_safe_redirect( $this->settings_url() );
+			}
+		}
+
+		if ( isset( $_GET['clear'] ) ) {
+			delete_site_option( 's3up_files_scanned' );
+			wp_safe_redirect( $this->settings_url() );
+		}
+
+		if ( isset( $_GET['refresh'] ) ) {
+			$this->api->get_site_data( true );
+			wp_safe_redirect( $this->settings_url() );
+		}
+
+		if ( isset( $_GET['reinstall'] ) ) {
+			//s3_uploads_install();
+			wp_safe_redirect( $this->settings_url() );
+		}
+	}
 
   function settings_page() {
     global $wpdb;
@@ -235,28 +278,6 @@ class S3_Uploads_Admin {
 				require_once( dirname( __FILE__ ) . '/templates/footer.php' );
 				?>
 
-				<?php
-        // if ( $this->api->has_token() && $api_data ) {
-        //   require_once( dirname( __FILE__ ) . '/templates/header-columns.php' );
-        //   if ( ! infinite_uploads_enabled() ) {
-        //     require_once( dirname( __FILE__ ) . '/templates/modal-scan.php' );
-        //   }
-        // }else {
-        //   if ( ! empty( $stats['files_finished'] ) && $stats['files_finished'] >= ( time() - DAY_IN_SECONDS ) ) {
-        //     $to_sync = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size FROM `{$wpdb->base_prefix}s3_uploads_files` WHERE deleted = 0" );
-        //     require_once( dirname( __FILE__ ) . '/templates/connect.php' );
-        //   } else {
-        //     //Make sure table is installed so we can show an error if not.
-
-						
-        //     require_once( dirname( __FILE__ ) . '/templates/welcome.php' );
-						
-        //   }
-        //   require_once( dirname( __FILE__ ) . '/templates/modal-scan.php' );
-        // }
-        // require_once( dirname( __FILE__ ) . '/templates/footer.php' );
-      ?>
-      
     </div>
     <?php
   }
@@ -380,7 +401,7 @@ class S3_Uploads_Admin {
 
 		// check caps
 		if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( $_POST['nonce'], 's3up_scan' ) ) {
-			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'infinite-uploads' ) );
+			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 's3-uploads' ) );
 		}
 
 		$path = $this->get_original_upload_dir_root();
@@ -407,62 +428,6 @@ class S3_Uploads_Admin {
 		}
 
 		wp_send_json_success( $data );
-
-		// $path = $this->iup_instance->get_original_upload_dir_root();
-		// $path = $path['basedir'];
-
-		// $remaining_dirs = [];
-		// //validate path is within uploads dir to prevent path traversal
-		// if ( isset( $_POST['remaining_dirs'] ) && is_array( $_POST['remaining_dirs'] ) ) {
-		// 	foreach ( $_POST['remaining_dirs'] as $dir ) {
-		// 		$realpath = realpath( $path . $dir );
-		// 		if ( 0 === strpos( $realpath, $path ) ) { //check that parsed path begins with upload dir
-		// 			$remaining_dirs[] = $dir;
-		// 		}
-		// 	}
-		// } elseif ( ! empty( $this->iup_instance->bucket ) ) {
-		// 	//If we are starting a new filesync and are logged into cloud storage abort any unfinished multipart uploads
-		// 	$to_abort = $wpdb->get_results( "SELECT file, transfer_status as upload_id FROM `{$wpdb->base_prefix}infinite_uploads_files` WHERE transfer_status IS NOT NULL" );
-		// 	if ( $to_abort ) {
-		// 		$s3       = $this->iup_instance->s3();
-		// 		$prefix   = $this->iup_instance->get_s3_prefix();
-		// 		$bucket   = $this->iup_instance->get_s3_bucket();
-		// 		$commands = [];
-		// 		foreach ( $to_abort as $file ) {
-		// 			$key = $prefix . $file->file;
-		// 			// Abort the multipart upload.
-		// 			$commands[] = $s3->getCommand( 'abortMultipartUpload', [
-		// 				'Bucket'   => $bucket,
-		// 				'Key'      => $key,
-		// 				'UploadId' => $file->upload_id,
-		// 			] );
-		// 			$this->sync_debug_log( "Aborting multipart upload for {$file->file} UploadId {$file->upload_id}" );
-		// 		}
-		// 		// Create a command pool
-		// 		$pool = new CommandPool( $s3, $commands );
-
-		// 		// Begin asynchronous execution of the commands
-		// 		$promise = $pool->promise();
-		// 	}
-		// }
-
-		// $filelist = new Infinite_Uploads_Filelist( $path, $this->ajax_timelimit, $remaining_dirs );
-		// $filelist->start();
-		// $this_file_count = count( $filelist->file_list );
-		// $remaining_dirs  = $filelist->paths_left;
-		// $is_done         = $filelist->is_done;
-		// $nonce           = wp_create_nonce( 'iup_scan' );
-
-		// $data  = compact( 'this_file_count', 'is_done', 'remaining_dirs', 'nonce' );
-		// $stats = $this->iup_instance->get_sync_stats();
-		// if ( $stats ) {
-		// 	$data = array_merge( $data, $stats );
-		// }
-
-		// // Force the abortMultipartUpload pool to complete synchronously just in case it hasn't finished
-		// if ( isset( $promise ) ) {
-		// 	$promise->wait();
-		// }
   }
 
   function ajax_remote_filelist() {

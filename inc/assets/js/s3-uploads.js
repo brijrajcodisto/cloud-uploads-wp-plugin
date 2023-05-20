@@ -85,7 +85,7 @@ jQuery(document).ready(function ($) {
 			data.nonce = s3up_data.nonce.scan;
 		}
 		$.post(
-			ajaxurl + '?action=infinite-uploads-remote-filelist',
+			ajaxurl + '?action=s3-uploads-remote-filelist',
 			data,
 			function (json) {
 				if (json.success) {
@@ -161,7 +161,7 @@ jQuery(document).ready(function ($) {
 			data.nonce = s3up_data.nonce.sync;
 		}
 		s3upAjaxCall = $.post(
-			ajaxurl + '?action=infinite-uploads-sync',
+			ajaxurl + '?action=s3-uploads-sync',
 			data,
 			function (json) {
 				s3upLoopErrors = 0;
@@ -250,7 +250,7 @@ jQuery(document).ready(function ($) {
 		}
 
 		$.get(
-			ajaxurl + '?action=infinite-uploads-status',
+			ajaxurl + '?action=s3-uploads-status',
 			function (json) {
 				if (json.success) {
 					$('#s3up-progress-size').text(json.data.remaining_size);
@@ -285,7 +285,7 @@ jQuery(document).ready(function ($) {
 		}
 
 		$.post(
-			ajaxurl + '?action=infinite-uploads-delete',
+			ajaxurl + '?action=s3-uploads-delete',
 			{nonce: s3up_data.nonce.delete},
 			function (json) {
 				if (json.success) {
@@ -325,7 +325,7 @@ jQuery(document).ready(function ($) {
 			data.nonce = s3up_data.nonce.download;
 		}
 		$.post(
-			ajaxurl + '?action=infinite-uploads-download',
+			ajaxurl + '?action=s3-uploads-download',
 			data,
 			function (json) {
 				s3upLoopErrors = 0;
@@ -457,7 +457,7 @@ jQuery(document).ready(function ($) {
 	$('#s3up-collapse-errors').on('show.bs.collapse', function () {
 		// load up list of errors via ajax
 		$.get(
-			ajaxurl + '?action=infinite-uploads-sync-errors',
+			ajaxurl + '?action=s3-uploads-sync-errors',
 			function (json) {
 				if (json.success) {
 					$('#s3up-collapse-errors .list-group').html(json.data);
@@ -473,7 +473,7 @@ jQuery(document).ready(function ($) {
 		$('#s3up-enable-button').hide();
 		$('#s3up-enable-spinner').removeClass('text-hide');
 		$.post(
-			ajaxurl + '?action=infinite-uploads-reset-errors',
+			ajaxurl + '?action=s3-uploads-reset-errors',
 			{foo: 'bar'},
 			function (json) {
 				if (json.success) {
@@ -522,14 +522,14 @@ jQuery(document).ready(function ($) {
 		deleteFiles();
 	});
 
-	//Enable infinite uploads
+	//Enable s3 uploads
 	$('#s3up-enable-button').on('click', function () {
 		$('.s3up-enable-errors').hide(); //hide errors on enable modal
 		$('#s3up-collapse-errors').collapse('hide');
 		$('#s3up-enable-button').hide();
 		$('#s3up-enable-spinner').removeClass('text-hide');
 		$.post(
-			ajaxurl + '?action=infinite-uploads-toggle',
+			ajaxurl + '?action=s3-uploads-toggle',
 			{enabled: true, nonce: s3up_data.nonce.toggle},
 			function (json) {
 				if (json.success) {
@@ -551,7 +551,7 @@ jQuery(document).ready(function ($) {
 		$('#s3up-enable-video-button').hide();
 		$('#s3up-enable-video-spinner').removeClass('d-none').addClass('d-block');
 		$.post(
-			ajaxurl + '?action=infinite-uploads-video-activate',
+			ajaxurl + '?action=s3-uploads-video-activate',
 			{nonce: s3up_data.nonce.video},
 			function (json) {
 				if (json.success) {
