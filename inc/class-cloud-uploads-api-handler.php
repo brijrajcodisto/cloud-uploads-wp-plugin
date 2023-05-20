@@ -174,5 +174,250 @@ class Cloud_Uploads_Api_Handler {
 
 		return $data; //if a temp API issue default to using cached data
 	}
+
+		/**
+	 * Perform the initial Oauth activation for API.
+	 *
+	 * @param $temp_token
+	 *
+	 * @return bool
+	 */
+	public function authorize( $temp_token ) {
+		$result = $this->call( 'token', [ 'temp_token' => $temp_token ], 'POST' );
+		if ( $result ) {
+			$this->set_token( $result->api_token );
+			$this->set_site_id( $result->site_id );
+
+			return $this->get_site_data( true );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns the canonical home_url that should be used for the site on the site.
+	 *
+	 * Define CLOUD_UPLOADS_HUB_HOME_URL to override or make static the url it should show as
+	 *  in the site. Defaults to network_home_url() which may be dynamically filtered
+	 *  by some plugins and hosting providers.
+	 *
+	 * @return string
+	 */
+	public function network_home_url() {
+		if ( defined( 'CLOUD_UPLOADS_HOME_URL' ) ) {
+			return CLOUD_UPLOADS_HOME_URL;
+		} else {
+			return network_home_url();
+		}
+	}
+
+	/**
+	 * Returns the full URL to the specified REST API endpoint.
+	 *
+	 * This is a function instead of making the property $server_url public so
+	 * we have better control and overview of the requested pages:
+	 * It's easy to add a filter or add extra URL params to all URLs this way.
+	 *
+	 * @param string $endpoint The endpoint to call on the server.
+	 *
+	 * @return string The full URL to the requested endpoint.
+	 */
+	public function rest_url( $endpoint ) {
+		if ( preg_match( '!^https?://!', $endpoint ) ) {
+			$url = $endpoint;
+		} else {
+			$url = $this->server_url . $endpoint;
+		}
+
+		return $url;
+	}
+
+		/**
+	 * Makes an API call and returns the results.
+	 *
+	 * @param string $remote_path The API function to call.
+	 * @param array  $data        Optional. GET or POST data to send.
+	 * @param string $method      Optional. GET or POST.
+	 * @param array  $options     Optional. Array of request options.
+	 *
+	 * @return object|boolean Results of the API call response body.
+	 */
+	public function call( $remote_path, $data = [], $method = 'GET', $options = [] ) {
+		$link = $this->rest_url( $remote_path );
+
+		$options = wp_parse_args(
+			$options,
+			[
+				'timeout'    => 25,
+				'user-agent' => 'Cloud Uploads/' . CLOUD_UPLOADS_VERSION . ' (+' . network_site_url() . ')',
+				'headers'    => [
+					'Content-Type' => 'application/json',
+					'Accept'       => 'application/json',
+				],
+			]
+		);
+
+		if ( $this->has_token() ) {
+			$options['headers']['Authorization'] = 'Bearer ' . $this->get_token();
+		}
+
+		if ( 'GET' == $method ) {
+			if ( ! empty( $data ) ) {
+				$link = add_query_arg( $data, $link );
+			}
+			$response = wp_remote_get( $link, $options );
+		} elseif ( 'POST' == $method ) {
+			$options['body'] = json_encode( $data );
+			$response        = wp_remote_post( $link, $options );
+		}
+
+		// Add the request-URL to the response data.
+		if ( $response && is_array( $response ) ) {
+			$response['request_url'] = $link;
+		}
+
+		if ( defined( 'CLOUD_UPLOADS_API_DEBUG' ) && CLOUD_UPLOADS_API_DEBUG ) {
+			$log = '[CLOUD_UPLOADS API call] %s | %s: %s (%s)';
+			if ( defined( 'CLOUD_UPLOADS_API_DEBUG_ALL' ) && CLOUD_UPLOADS_API_DEBUG_ALL ) {
+				$log .= "\nRequest options: %s\nResponse: %s";
+			}
+
+			$resp_body = wp_remote_retrieve_body( $response );
+
+			if ( $response && is_array( $response ) ) {
+				$debug_data = sprintf( "%s %s\n", wp_remote_retrieve_response_code( $response ), wp_remote_retrieve_response_message( $response ) );
+				$debug_data .= var_export( wp_remote_retrieve_headers( $response ), true ) . PHP_EOL; // WPCS: var_export() ok.
+				$debug_data .= $resp_body;
+			} else {
+				$debug_data = '';
+			}
+
+			$msg = sprintf(
+				$log,
+				CLOUD_UPLOADS_VERSION,
+				$method,
+				$link,
+				wp_remote_retrieve_response_code( $response ),
+				wp_json_encode( $options ),
+				$debug_data
+			);
+			error_log( $msg );
+		}
+
+		//if there is an auth problem
+		if ( $this->has_token() && in_array( wp_remote_retrieve_response_code( $response ), [ 401, 403, 404 ] ) ) {
+			$body = json_decode( wp_remote_retrieve_body( $response ) );
+			if ( isset( $body->code ) && in_array( $body->code, [ 'missing_api_token', 'invalid_site', 'invalid_api_key' ] ) ) {
+				$this->set_token( '' );
+			}
+		}
+
+		if ( 200 != wp_remote_retrieve_response_code( $response ) ) {
+			if ( ! isset( $options['blocking'] ) || false !== $options['blocking'] ) {
+				$this->parse_api_error( $response );
+			}
+
+			return false;
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ) );
+		if ( json_last_error() ) {
+			$this->parse_api_error( json_last_error_msg() );
+
+			return false;
+		}
+
+		return $body;
+	}
+
+	/**
+	 * Parses an HTTP response object (or other value) to determine an error
+	 * reason. The error reason is added to the PHP error log.
+	 *
+	 * @param string|WP_Error|array $response String, WP_Error object, HTTP response array.
+	 */
+	protected function parse_api_error( $response ) {
+		$error_code = wp_remote_retrieve_response_code( $response );
+		if ( ! $error_code ) {
+			$error_code = 500;
+		}
+		$this->api_error = '';
+
+		$body = is_array( $response )
+			? wp_remote_retrieve_body( $response )
+			: false;
+
+		if ( is_scalar( $response ) ) {
+			$this->api_error = $response;
+		} elseif ( is_wp_error( $response ) ) {
+			$this->api_error = $response->get_error_message();
+		} elseif ( is_array( $response ) && ! empty( $body ) ) {
+			$data = json_decode( wp_remote_retrieve_body( $response ), true );
+			if ( is_array( $data ) && ! empty( $data['message'] ) ) {
+				$this->api_error = $data['message'];
+			}
+		}
+
+		$url = '(unknown URL)';
+		if ( is_array( $response ) && isset( $response['request_url'] ) ) {
+			$url = $response['request_url'];
+		}
+
+		if ( empty( $this->api_error ) ) {
+			$this->api_error = sprintf(
+				'HTTP Error: %s "%s"',
+				$error_code,
+				wp_remote_retrieve_response_message( $response )
+			);
+		}
+
+		// Collect back-trace information for the logfile.
+		$caller_dump = '';
+		if ( defined( 'CLOUD_UPLOADS_API_DEBUG' ) && CLOUD_UPLOADS_API_DEBUG ) {
+			$trace     = debug_backtrace();
+			$caller    = [];
+			$last_line = '';
+			foreach ( $trace as $level => $item ) {
+				if ( ! isset( $item['class'] ) ) {
+					$item['class'] = '';
+				}
+				if ( ! isset( $item['type'] ) ) {
+					$item['type'] = '';
+				}
+				if ( ! isset( $item['function'] ) ) {
+					$item['function'] = '<function>';
+				}
+				if ( ! isset( $item['line'] ) ) {
+					$item['line'] = '?';
+				}
+
+				if ( $level > 0 ) {
+					$caller[] = $item['class'] .
+					            $item['type'] .
+					            $item['function'] .
+					            ':' . $last_line;
+				}
+				$last_line = $item['line'];
+			}
+			$caller_dump = "\n\t# " . implode( "\n\t# ", $caller );
+
+			if ( is_array( $response ) && isset( $response['request_url'] ) ) {
+				$caller_dump = "\n\tURL: " . $response['request_url'] . $caller_dump;
+			}
+		}
+
+		// Log the error to PHP error log.
+		error_log(
+			sprintf(
+				'[CLOUD_UPLOADS API Error] %s | %s (%s [%s]) %s',
+				CLOUD_UPLOADS_VERSION,
+				$this->api_error,
+				$url,
+				$error_code,
+				$caller_dump
+			),
+			0
+		);
+	}
   
 }

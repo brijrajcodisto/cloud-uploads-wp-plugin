@@ -83,7 +83,7 @@ class Cloud_Uploads_Admin {
 	}
 
   function setup_menu(){
-    $page = add_menu_page( 'Cloud Uploads', 'Cloud Uploads', 'manage_options', 'cloud-uploads',  [ &$this, 'settings_page' ], plugins_url( 'assets/img/logo-menu.png', __FILE__ ) );
+    $page = add_menu_page( 'Cloud Uploads', 'Cloud Uploads', 'manage_options', 'cloud_uploads',  [ &$this, 'settings_page' ], plugins_url( 'assets/img/logo-menu.png', __FILE__ ) );
     add_action( 'admin_print_scripts-' . $page, [ &$this, 'admin_scripts' ] );
 		add_action( 'admin_print_styles-' . $page, [ &$this, 'admin_styles' ] );
   }
@@ -119,6 +119,21 @@ class Cloud_Uploads_Admin {
 		wp_localize_script( 'cup-js', 'cup_data', $data );
 	}
 
+	/**
+	 * Identical to WP core size_format() function except it returns "0 GB" instead of false on failure.
+	 *
+	 * @param int|string $bytes    Number of bytes. Note max integer size for integers.
+	 * @param int        $decimals Optional. Precision of number of decimal places. Default 0.
+	 *
+	 * @return string Number string on success.
+	 */
+	function size_format_zero( $bytes, $decimals = 0 ) {
+		if ( $bytes > 0 ) {
+			return size_format( $bytes, $decimals );
+		} else {
+			return '0 GB';
+		}
+	}
 
 	public function get_filetypes( $is_chart = false, $cloud_types = false ) {
 		global $wpdb;
@@ -268,12 +283,25 @@ class Cloud_Uploads_Admin {
 				?>
 				<div id="cup-error" class="alert alert-danger mt-1" role="alert"></div>
 			<?php
-
-				require_once( dirname( __FILE__ ) . '/templates/modal-scan.php' );
-				if ( ! empty( $stats['files_finished'] ) && $stats['files_finished'] >= ( time() - DAY_IN_SECONDS ) ) {
-					require_once( dirname( __FILE__ ) . '/templates/local-file-overview.php' );
+				if ($this->api->has_token() && $api_data ) {
+					if ( ! $api_data->stats->site->files ) {
+						$synced           = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size FROM `{$wpdb->base_prefix}infinite_uploads_files` WHERE synced = 1" );
+						$cloud_size       = $synced->size;
+						$cloud_files      = $synced->files;
+						$cloud_total_size = $api_data->stats->cloud->storage + $synced->size;
+					} else {
+						$cloud_size       = $api_data->stats->site->storage;
+						$cloud_files      = $api_data->stats->site->files;
+						$cloud_total_size = $api_data->stats->cloud->storage;
+					}
+					require_once( dirname( __FILE__ ) . '/templates/account.php' );
 				} else {
-					require_once( dirname( __FILE__ ) . '/templates/welcome.php' );
+					require_once( dirname( __FILE__ ) . '/templates/modal-scan.php' );
+					if ( ! empty( $stats['files_finished'] ) && $stats['files_finished'] >= ( time() - DAY_IN_SECONDS ) ) {
+						require_once( dirname( __FILE__ ) . '/templates/local-file-overview.php' );
+					} else {
+						require_once( dirname( __FILE__ ) . '/templates/welcome.php' );
+					}
 				}
 				require_once( dirname( __FILE__ ) . '/templates/footer.php' );
 				?>
