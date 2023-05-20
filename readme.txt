@@ -1,4 +1,4 @@
-=== S3 Uploads - Offload Media and Video to Cloud Storage ===
+=== Cloud Uploads - Offload Media and Video to Cloud Storage ===
 
 Requires at least: 5.3
 Tested up to: 6.2.2
@@ -13,7 +13,7 @@ Move, encode, and serve all your video and other media files from the cloud to b
 
 == Description ==
 
-**S3 Uploads is your all-in-one media solution with video hosting, encoding, and streaming, and a cloud storage and CDN delivery provider for your WordPress media library. It allows you to easily connect an unlimited number of sites to your Infinite Uploads cloud account for offloading your files, handling massive video uploads and encoding them, lowering hosting costs, improving site performance, and serving files faster to your visitors.**
+**Cloud Uploads is your all-in-one media solution with video hosting, encoding, and streaming, and a cloud storage and CDN delivery provider for your WordPress media library. It allows you to easily connect an unlimited number of sites to your Infinite Uploads cloud account for offloading your files, handling massive video uploads and encoding them, lowering hosting costs, improving site performance, and serving files faster to your visitors.**
 
 
 ### NEW: Simple, Unbranded, GDPR-compliant Video Hosting!
@@ -26,9 +26,9 @@ Our new video feature offers more than just infinitely scalable video hosting. W
 
 Paying high overage fees or running out of storage or bandwidth with your hosting provider? Upgrading to a new plan just for more storage can be expensive. Moving your media uploads and other large files to the cloud is more affordable and scales infinitely as your site grows.
 
-Upload directly to your S3 Uploads cloud storage and manage your files right from the WordPress Media Library. Eliminate the need for an FTP file manager and skip confusing Amazon S3, Google Cloud, Azure, or other account setup, API integration, or expensive 3rd-party connect plugins. Use the Infinite Uploads plugin to connect all your sites and only pay for your total storage and bandwidth.
+Upload directly to your Cloud Uploads cloud storage and manage your files right from the WordPress Media Library. Eliminate the need for an FTP file manager and skip confusing Amazon S3, Google Cloud, Azure, or other account setup, API integration, or expensive 3rd-party connect plugins. Use the Infinite Uploads plugin to connect all your sites and only pay for your total storage and bandwidth.
 
-### S3 Uploads - Features
+### Cloud Uploads - Features
 
 - **Unlimited files** – no limits to the number of files you can add each month
 - **Unlimited sites** - you can connect just one site, hundreds, or thousands...no extra license costs

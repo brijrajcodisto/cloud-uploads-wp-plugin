@@ -1,6 +1,6 @@
 <?php
 
-class S3_Uploads_Admin {
+class Cloud_Uploads_Admin {
   private $api;
   private static $instance;
 	private $capability;
@@ -9,40 +9,40 @@ class S3_Uploads_Admin {
 	private $auth_error;
 
   public function __construct() {
-    $this->api = new S3_Uploads_Api_Handler();
-		$this->capability = apply_filters( 's3_uploads_settings_capability', ( is_multisite() ? 'manage_network_options' : 'manage_options' ) );
+    $this->api = new Cloud_Uploads_Api_Handler();
+		$this->capability = apply_filters( 'cloud_uploads_settings_capability', ( is_multisite() ? 'manage_network_options' : 'manage_options' ) );
 
 		if ( is_multisite() ) {
 			//multisite
 			add_action('admin_menu',  [ &$this, 'setup_menu' ]);
-			add_action( 'load-settings_page_s3_uploads', [ &$this, 'intercept_auth' ] );
+			add_action( 'load-settings_page_cloud_uploads', [ &$this, 'intercept_auth' ] );
 		} else {
 			//single site
 			add_action('admin_menu',  [ &$this, 'setup_menu' ]);
-			add_action( 'load-toplevel_page_s3_uploads', [ &$this, 'intercept_auth' ] );
+			add_action( 'load-toplevel_page_cloud_uploads', [ &$this, 'intercept_auth' ] );
 		}
     
     if ( is_main_site() ) {
-			add_action( 'wp_ajax_s3-uploads-filelist', [ &$this, 'ajax_filelist' ] );
-			add_action( 'wp_ajax_s3-uploads-remote-filelist', [ &$this, 'ajax_remote_filelist' ] );
-			add_action( 'wp_ajax_s3-uploads-sync', [ &$this, 'ajax_sync' ] );
-			add_action( 'wp_ajax_s3-uploads-sync-errors', [ &$this, 'ajax_sync_errors' ] );
-			add_action( 'wp_ajax_s3-uploads-reset-errors', [ &$this, 'ajax_reset_errors' ] );
-			add_action( 'wp_ajax_s3-uploads-delete', [ &$this, 'ajax_delete' ] );
-			add_action( 'wp_ajax_s3-uploads-download', [ &$this, 'ajax_download' ] );
-			add_action( 'wp_ajax_s3-uploads-toggle', [ &$this, 'ajax_toggle' ] );
-			add_action( 'wp_ajax_s3-uploads-status', [ &$this, 'ajax_status' ] );
+			add_action( 'wp_ajax_cloud-uploads-filelist', [ &$this, 'ajax_filelist' ] );
+			add_action( 'wp_ajax_cloud-uploads-remote-filelist', [ &$this, 'ajax_remote_filelist' ] );
+			add_action( 'wp_ajax_cloud-uploads-sync', [ &$this, 'ajax_sync' ] );
+			add_action( 'wp_ajax_cloud-uploads-sync-errors', [ &$this, 'ajax_sync_errors' ] );
+			add_action( 'wp_ajax_cloud-uploads-reset-errors', [ &$this, 'ajax_reset_errors' ] );
+			add_action( 'wp_ajax_cloud-uploads-delete', [ &$this, 'ajax_delete' ] );
+			add_action( 'wp_ajax_cloud-uploads-download', [ &$this, 'ajax_download' ] );
+			add_action( 'wp_ajax_cloud-uploads-toggle', [ &$this, 'ajax_toggle' ] );
+			add_action( 'wp_ajax_cloud-uploads-status', [ &$this, 'ajax_status' ] );
 		}
   }
 
   	/**
 	 *
-	 * @return S3_Uploads_Admin
+	 * @return Cloud_Uploads_Admin
 	 */
 	public static function get_instance() {
 
 		if ( ! self::$instance ) {
-			self::$instance = new S3_Uploads_Admin();
+			self::$instance = new Cloud_Uploads_Admin();
 		}
 
 		return self::$instance;
@@ -57,20 +57,20 @@ class S3_Uploads_Admin {
 	 */
 	function settings_url( $args = [] ) {
 		if ( is_multisite() ) {
-			$base = network_admin_url( 'admin.php?page=s3_uploads' );
+			$base = network_admin_url( 'admin.php?page=cloud_uploads' );
 		} else {
-			$base = admin_url( 'admin.php?page=s3_uploads' );
+			$base = admin_url( 'admin.php?page=cloud_uploads' );
 		}
 
 		return add_query_arg( $args, $base );
 	}
 
 	/**
-	 * Get a url to the public S3 Uploads site.
+	 * Get a url to the public Cloud Uploads site.
 	 *
 	 * @param string $path Optional path on the site.
 	 *
-	 * @return S3_Uploads_Api_Handler|string
+	 * @return Cloud_Uploads_Api_Handler|string
 	 */
 	function api_url( $path = '' ) {
 		$url = trailingslashit( $this->api->server_root );
@@ -83,21 +83,21 @@ class S3_Uploads_Admin {
 	}
 
   function setup_menu(){
-    $page = add_menu_page( 'S3 Uploads', 'S3 Uploads', 'manage_options', 's3-uploads',  [ &$this, 'settings_page' ], plugins_url( 'assets/img/logo-menu.png', __FILE__ ) );
+    $page = add_menu_page( 'Cloud Uploads', 'Cloud Uploads', 'manage_options', 'cloud-uploads',  [ &$this, 'settings_page' ], plugins_url( 'assets/img/logo-menu.png', __FILE__ ) );
     add_action( 'admin_print_scripts-' . $page, [ &$this, 'admin_scripts' ] );
 		add_action( 'admin_print_styles-' . $page, [ &$this, 'admin_styles' ] );
   }
 
   function admin_scripts() {
-		wp_enqueue_script( 's3up-bootstrap', plugins_url( 'assets/bootstrap/js/bootstrap.bundle.min.js', __FILE__ ), [ 'jquery' ], S3_UPLOADS_VERSION );
-		wp_enqueue_script( 's3up-chartjs', plugins_url( 'assets/js/Chart.min.js', __FILE__ ), [], S3_UPLOADS_VERSION );
-		wp_enqueue_script( 's3up-js', plugins_url( 'assets/js/s3-uploads.js', __FILE__ ), [ 'wp-color-picker' ], S3_UPLOADS_VERSION );
+		wp_enqueue_script( 'cup-bootstrap', plugins_url( 'assets/bootstrap/js/bootstrap.bundle.min.js', __FILE__ ), [ 'jquery' ], CLOUD_UPLOADS_VERSION );
+		wp_enqueue_script( 'cup-chartjs', plugins_url( 'assets/js/Chart.min.js', __FILE__ ), [], CLOUD_UPLOADS_VERSION );
+		wp_enqueue_script( 'cup-js', plugins_url( 'assets/js/cloud-uploads.js', __FILE__ ), [ 'wp-color-picker' ], CLOUD_UPLOADS_VERSION );
 
     $data = [];
 		$data['strings'] = [
-			'leave_confirm'      => esc_html__( 'Are you sure you want to leave this tab? The current bulk action will be canceled and you will need to continue where it left off later.', 's3-uploads' ),
-			'ajax_error'         => esc_html__( 'Too many server errors. Please try again.', 's3-uploads' ),
-			'leave_confirmation' => esc_html__( 'If you leave this page the sync will be interrupted and you will have to continue where you left off later.', 's3-uploads' ),
+			'leave_confirm'      => esc_html__( 'Are you sure you want to leave this tab? The current bulk action will be canceled and you will need to continue where it left off later.', 'cloud-uploads' ),
+			'ajax_error'         => esc_html__( 'Too many server errors. Please try again.', 'cloud-uploads' ),
+			'leave_confirmation' => esc_html__( 'If you leave this page the sync will be interrupted and you will have to continue where you left off later.', 'cloud-uploads' ),
 		];
 
 		$data['local_types'] = $this->get_filetypes( true );
@@ -108,15 +108,15 @@ class S3_Uploads_Admin {
 		}
 
 		$data['nonce'] = [
-			'scan'     => wp_create_nonce( 's3up_scan' ),
-			'sync'     => wp_create_nonce( 's3up_sync' ),
-			'delete'   => wp_create_nonce( 's3up_delete' ),
-			'download' => wp_create_nonce( 's3up_download' ),
-			'toggle'   => wp_create_nonce( 's3up_toggle' ),
-			'video'    => wp_create_nonce( 's3up_video' ),
+			'scan'     => wp_create_nonce( 'cup_scan' ),
+			'sync'     => wp_create_nonce( 'cup_sync' ),
+			'delete'   => wp_create_nonce( 'cup_delete' ),
+			'download' => wp_create_nonce( 'cup_download' ),
+			'toggle'   => wp_create_nonce( 'cup_toggle' ),
+			'video'    => wp_create_nonce( 'cup_video' ),
 		];
 
-		wp_localize_script( 's3up-js', 's3up_data', $data );
+		wp_localize_script( 'cup-js', 'cup_data', $data );
 	}
 
 
@@ -125,12 +125,12 @@ class S3_Uploads_Admin {
 
 		if ( false !== $cloud_types ) {
 			if ( empty( $cloud_types ) ) { //estimate if sync was fresh
-				$types = $wpdb->get_results( "SELECT type, count(*) AS files, SUM(`size`) as size FROM `{$wpdb->base_prefix}s3_uploads_files` WHERE synced = 1 GROUP BY type ORDER BY size DESC" );
+				$types = $wpdb->get_results( "SELECT type, count(*) AS files, SUM(`size`) as size FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 1 GROUP BY type ORDER BY size DESC" );
 			} else {
 				$types = $cloud_types;
 			}
 		} else {
-			$types = $wpdb->get_results( "SELECT type, count(*) AS files, SUM(`size`) as size FROM `{$wpdb->base_prefix}s3_uploads_files` WHERE deleted = 0 GROUP BY type ORDER BY size DESC" );
+			$types = $wpdb->get_results( "SELECT type, count(*) AS files, SUM(`size`) as size FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE deleted = 0 GROUP BY type ORDER BY size DESC" );
 		}
 
 		$data = [];
@@ -148,12 +148,12 @@ class S3_Uploads_Admin {
 			foreach ( $data as $item ) {
 				$chart['datasets'][0]['data'][]            = $item->size;
 				$chart['datasets'][0]['backgroundColor'][] = $item->color;
-				$chart['labels'][]                         = $item->label . ": " . sprintf( _n( '%s file totalling %s', '%s files totalling %s', $item->files, 's3-uploads' ), number_format_i18n( $item->files ), size_format( $item->size, 1 ) );
+				$chart['labels'][]                         = $item->label . ": " . sprintf( _n( '%s file totalling %s', '%s files totalling %s', $item->files, 'cloud-uploads' ), number_format_i18n( $item->files ), size_format( $item->size, 1 ) );
 			}
 
 			$total_size     = array_sum( wp_list_pluck( $data, 'size' ) );
 			$total_files    = array_sum( wp_list_pluck( $data, 'files' ) );
-			$chart['total'] = sprintf( _n( '%s / %s File', '%s / %s Files', $total_files, 's3-uploads' ), size_format( $total_size, 2 ), number_format_i18n( $total_files ) );
+			$chart['total'] = sprintf( _n( '%s / %s File', '%s / %s Files', $total_files, 'cloud-uploads' ), size_format( $total_size, 2 ), number_format_i18n( $total_files ) );
 
 			return $chart;
 		}
@@ -163,13 +163,13 @@ class S3_Uploads_Admin {
 
 	public function get_file_type_format( $type, $key ) {
 		$labels = [
-			'image'    => [ 'color' => '#26A9E0', 'label' => esc_html__( 'Images', 's3-uploads' ) ],
-			'audio'    => [ 'color' => '#00A167', 'label' => esc_html__( 'Audio', 's3-uploads' ) ],
-			'video'    => [ 'color' => '#C035E2', 'label' => esc_html__( 'Video', 's3-uploads' ) ],
-			'document' => [ 'color' => '#EE7C1E', 'label' => esc_html__( 'Documents', 's3-uploads' ) ],
-			'archive'  => [ 'color' => '#EC008C', 'label' => esc_html__( 'Archives', 's3-uploads' ) ],
-			'code'     => [ 'color' => '#EFED27', 'label' => esc_html__( 'Code', 's3-uploads' ) ],
-			'other'    => [ 'color' => '#F1F1F1', 'label' => esc_html__( 'Other', 's3-uploads' ) ],
+			'image'    => [ 'color' => '#26A9E0', 'label' => esc_html__( 'Images', 'cloud-uploads' ) ],
+			'audio'    => [ 'color' => '#00A167', 'label' => esc_html__( 'Audio', 'cloud-uploads' ) ],
+			'video'    => [ 'color' => '#C035E2', 'label' => esc_html__( 'Video', 'cloud-uploads' ) ],
+			'document' => [ 'color' => '#EE7C1E', 'label' => esc_html__( 'Documents', 'cloud-uploads' ) ],
+			'archive'  => [ 'color' => '#EC008C', 'label' => esc_html__( 'Archives', 'cloud-uploads' ) ],
+			'code'     => [ 'color' => '#EFED27', 'label' => esc_html__( 'Code', 'cloud-uploads' ) ],
+			'other'    => [ 'color' => '#F1F1F1', 'label' => esc_html__( 'Other', 'cloud-uploads' ) ],
 		];
 
 		if ( isset( $labels[ $type ] ) ) {
@@ -184,8 +184,8 @@ class S3_Uploads_Admin {
 	 */
 	function admin_styles() {
 		wp_enqueue_style( 'wp-color-picker' );
-		wp_enqueue_style( 's3up-bootstrap', plugins_url( 'assets/bootstrap/css/bootstrap.min.css', __FILE__ ), false, S3_UPLOADS_VERSION );
-		wp_enqueue_style( 's3up-styles', plugins_url( 'assets/css/admin.css', __FILE__ ), [ 's3up-bootstrap' ], S3_UPLOADS_VERSION );
+		wp_enqueue_style( 'cup-bootstrap', plugins_url( 'assets/bootstrap/css/bootstrap.min.css', __FILE__ ), false, CLOUD_UPLOADS_VERSION );
+		wp_enqueue_style( 'cup-styles', plugins_url( 'assets/css/admin.css', __FILE__ ), [ 'cup-bootstrap' ], CLOUD_UPLOADS_VERSION );
 	}
 
 		/**
@@ -193,7 +193,7 @@ class S3_Uploads_Admin {
 	 */
 	function intercept_auth() {
 		if ( ! current_user_can( $this->capability ) ) {
-			wp_die( esc_html__( 'Permissions Error: Please refresh the page and try again.', 's3-uploads' ) );
+			wp_die( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
 		}
 
 		if ( ! empty( $_GET['temp_token'] ) ) {
@@ -206,7 +206,7 @@ class S3_Uploads_Admin {
 		}
 
 		if ( isset( $_GET['clear'] ) ) {
-			delete_site_option( 's3up_files_scanned' );
+			delete_site_option( 'cup_files_scanned' );
 			wp_safe_redirect( $this->settings_url() );
 		}
 
@@ -216,7 +216,7 @@ class S3_Uploads_Admin {
 		}
 
 		if ( isset( $_GET['reinstall'] ) ) {
-			//s3_uploads_install();
+			//cloud_uploads_install();
 			wp_safe_redirect( $this->settings_url() );
 		}
 	}
@@ -225,18 +225,18 @@ class S3_Uploads_Admin {
     global $wpdb;
     
     $region_labels = [
-			'US' => esc_html__( 'United States', 's3-uploads' ),
-			'EU' => esc_html__( 'Europe', 's3-uploads' ),
+			'US' => esc_html__( 'United States', 'cloud-uploads' ),
+			'EU' => esc_html__( 'Europe', 'cloud-uploads' ),
 		];
 
 		$stats    = $this->get_sync_stats();
 		$api_data = $this->api->get_site_data();
     ?>
-    <div id="s3up-settings-page" class="wrap s3up-background">
+    <div id="cup-settings-page" class="wrap cup-background">
       <?php
 			// if ( $this->api->has_token() && $api_data ) {
       //   if ( ! $api_data->stats->site->files ) {
-			// 		$synced           = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size FROM `{$wpdb->base_prefix}s3_uploads_files` WHERE synced = 1" );
+			// 		$synced           = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 1" );
 			// 		$cloud_size       = $synced->size;
 			// 		$cloud_files      = $synced->files;
 			// 		$cloud_total_size = $api_data->stats->cloud->storage + $synced->size;
@@ -248,7 +248,7 @@ class S3_Uploads_Admin {
 
       //   require_once( dirname( __FILE__ ) . '/templates/header-columns.php' );
 
-			// 	if ( ! get_site_option( 's3up_enabled' ) ) {
+			// 	if ( ! get_site_option( 'cup_enabled' ) ) {
 			// 		require_once( dirname( __FILE__ ) . '/templates/modal-scan.php' );
 			// 		if ( isset( $api_data->site ) && $api_data->site->upload_writeable ) {
 			// 			//require_once( dirname( __FILE__ ) . '/templates/modal-upload.php' );
@@ -266,7 +266,7 @@ class S3_Uploads_Admin {
 
       // }
 				?>
-				<div id="s3up-error" class="alert alert-danger mt-1" role="alert"></div>
+				<div id="cup-error" class="alert alert-danger mt-1" role="alert"></div>
 			<?php
 
 				require_once( dirname( __FILE__ ) . '/templates/modal-scan.php' );
@@ -286,12 +286,12 @@ class S3_Uploads_Admin {
 	 * Logs a debugging line.
 	 */
 	function sync_debug_log( $message ) {
-		if ( defined( 'S3_UPLOADS_API_DEBUG' ) && S3_UPLOADS_API_DEBUG ) {
-			$log = '[S3_UPLOADS Sync Debug] %s %s';
+		if ( defined( 'CLOUD_UPLOADS_API_DEBUG' ) && CLOUD_UPLOADS_API_DEBUG ) {
+			$log = '[CLOUD_UPLOADS Sync Debug] %s %s';
 
 			$msg = sprintf(
 				$log,
-				S3_UPLOADS_VERSION,
+				CLOUD_UPLOADS_VERSION,
 				$message
 			);
 			error_log( $msg );
@@ -301,13 +301,13 @@ class S3_Uploads_Admin {
 	public function get_sync_stats() {
 		global $wpdb;
 
-		$total     = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size, SUM(`transferred`) as transferred FROM `{$wpdb->base_prefix}s3_uploads_files` WHERE 1" );
-		$local     = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size, SUM(`transferred`) as transferred FROM `{$wpdb->base_prefix}s3_uploads_files` WHERE deleted = 0" );
-		$synced    = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size, SUM(`transferred`) as transferred FROM `{$wpdb->base_prefix}s3_uploads_files` WHERE synced = 1" );
-		$deletable = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size, SUM(`transferred`) as transferred FROM `{$wpdb->base_prefix}s3_uploads_files` WHERE synced = 1 AND deleted = 0" );
-		$deleted   = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size, SUM(`transferred`) as transferred FROM `{$wpdb->base_prefix}s3_uploads_files` WHERE synced = 1 AND deleted = 1" );
+		$total     = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size, SUM(`transferred`) as transferred FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE 1" );
+		$local     = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size, SUM(`transferred`) as transferred FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE deleted = 0" );
+		$synced    = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size, SUM(`transferred`) as transferred FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 1" );
+		$deletable = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size, SUM(`transferred`) as transferred FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 1 AND deleted = 0" );
+		$deleted   = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size, SUM(`transferred`) as transferred FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 1 AND deleted = 1" );
 
-		$progress = (array) get_site_option( 's3up_files_scanned' );
+		$progress = (array) get_site_option( 'cup_files_scanned' );
 
 		return array_merge( $progress, [
 			'is_data'         => (bool) $total->files,
@@ -400,8 +400,8 @@ class S3_Uploads_Admin {
 		global $wpdb;
 
 		// check caps
-		if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( $_POST['nonce'], 's3up_scan' ) ) {
-			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 's3-uploads' ) );
+		if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( $_POST['nonce'], 'cup_scan' ) ) {
+			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
 		}
 
 		$path = $this->get_original_upload_dir_root();
@@ -409,12 +409,12 @@ class S3_Uploads_Admin {
 
 		$this->sync_debug_log( "Ajax time limit: " . $this->ajax_timelimit );
 		
-		$filelist = new S3_Uploads_Filelist( $path, $this->ajax_timelimit );
+		$filelist = new Cloud_Uploads_Filelist( $path, $this->ajax_timelimit );
 		$filelist->start();
 		$this_file_count = count( $filelist->file_list );
 		$remaining_dirs  = $filelist->paths_left;
 		$is_done         = $filelist->is_done;
-		$nonce           = wp_create_nonce( 's3up_scan' );
+		$nonce           = wp_create_nonce( 'cup_scan' );
 
 		$data  = compact( 'this_file_count', 'is_done', 'remaining_dirs', 'nonce' );
 		$stats = $this->get_sync_stats();

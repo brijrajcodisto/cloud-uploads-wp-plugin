@@ -7,7 +7,7 @@
 /**
  * The main API class.
  */
-class S3_Uploads_Api_Handler {
+class Cloud_Uploads_Api_Handler {
   
 	/**
 	 * The API server.
@@ -58,22 +58,22 @@ class S3_Uploads_Api_Handler {
 	 */
 	public function __construct() {
 
-		if ( defined( 'S3_UPLOADS_CUSTOM_API_SERVER' ) ) {
-			$this->server_root = trailingslashit( S3_UPLOADS_CUSTOM_API_SERVER );
+		if ( defined( 'CLOUD_UPLOADS_CUSTOM_API_SERVER' ) ) {
+			$this->server_root = trailingslashit( CLOUD_UPLOADS_CUSTOM_API_SERVER );
 		}
 		$this->server_url = $this->server_root . $this->rest_api;
 
-		$this->api_token   = get_site_option( 's3up_apitoken' );
-		$this->api_site_id = get_site_option( 's3up_site_id' );
+		$this->api_token   = get_site_option( 'cup_apitoken' );
+		$this->api_site_id = get_site_option( 'cup_site_id' );
 
 		// Schedule automatic data update on the main site of the network.
 		if ( is_main_site() ) {
-			if ( ! wp_next_scheduled( 's3_uploads_sync' ) ) {
-				wp_schedule_event( time(), 'daily', 's3_uploads_sync' );
+			if ( ! wp_next_scheduled( 'cloud_uploads_sync' ) ) {
+				wp_schedule_event( time(), 'daily', 'cloud_uploads_sync' );
 			}
 
-			add_action( 's3_uploads_sync', [ $this, 'get_site_data' ] );
-			add_action( 'wp_ajax_nopriv_s3-uploads-refresh', [ &$this, 'remote_refresh' ] );
+			add_action( 'cloud_uploads_sync', [ $this, 'get_site_data' ] );
+			add_action( 'wp_ajax_nopriv_cloud-uploads-refresh', [ &$this, 'remote_refresh' ] );
 		}
 	}
 
@@ -102,7 +102,7 @@ class S3_Uploads_Api_Handler {
 	 */
 	public function set_token( $token ) {
 		$this->api_token = $token;
-		update_site_option( 's3up_apitoken', $token );
+		update_site_option( 'cup_apitoken', $token );
 	}
 
 	/**
@@ -121,20 +121,20 @@ class S3_Uploads_Api_Handler {
 	 */
 	public function set_site_id( $site_id ) {
 		$this->api_site_id = $site_id;
-		update_site_option( 's3up_site_id', $site_id );
+		update_site_option( 'cup_site_id', $site_id );
 	}
 
 		/**
 	 * Returns the canonical site_url that should be used for the site on the site.
 	 *
-	 * Define S3_UPLOADS_SITE_URL to override or make static the url it should show as
+	 * Define CLOUD_UPLOADS_SITE_URL to override or make static the url it should show as
 	 *  in the site. Defaults to network_site_url() which may be dynamically filtered
 	 *  by some plugins and hosting providers.
 	 *
 	 * @return string
 	 */
 	public function network_site_url() {
-		return defined( 'S3_UPLOADS_SITE_URL' ) ? S3_UPLOADS_SITE_URL : network_site_url();
+		return defined( 'CLOUD_UPLOADS_SITE_URL' ) ? CLOUD_UPLOADS_SITE_URL : network_site_url();
 	}
 
 	
@@ -152,7 +152,7 @@ class S3_Uploads_Api_Handler {
 		}
 
 		if ( ! $force_refresh ) {
-			$data = get_site_option( 's3up_api_data' );
+			$data = get_site_option( 'cup_api_data' );
 			if ( $data ) {
 				$data = json_decode( $data );
 
@@ -167,7 +167,7 @@ class S3_Uploads_Api_Handler {
 		if ( $result ) {
 			$result->refreshed = time();
 			//json_encode to prevent object injections
-			update_site_option( 's3up_api_data', json_encode( $result ) );
+			update_site_option( 'cup_api_data', json_encode( $result ) );
 
 			return $result;
 		}

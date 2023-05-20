@@ -95,18 +95,18 @@ body.mobile.modal-open #wpwrap {
     margin-right: 1rem;
 }
 
-#s3up-settings-page .progress {
+#cup-settings-page .progress {
     height: 30px;
     border-radius: 15px;
     padding: 5px;
 }
 
-#s3up-settings-page .progress .progress-bar {
+#cup-settings-page .progress .progress-bar {
     background-color: rgba(38, 169, 224, 1);
     border-radius: 10px;
 }
 
-#s3up-settings-page .progress.download .progress-bar {
+#cup-settings-page .progress.download .progress-bar {
     background-color: #EE7C1E;
 }
 
@@ -136,17 +136,17 @@ body.mobile.modal-open #wpwrap {
   margin-bottom: 0 !important;
 }
 
-#s3up-sync-errors, #s3up-download-errors {
+#cup-sync-errors, #cup-download-errors {
   height: 3em;
   display: none;
   overflow-y: scroll;
 }
 
-.s3up-enabled-status .dashicons {
+.cup-enabled-status .dashicons {
   font-size: 25px;
 }
 
-.s3up-enabled-status .dashicons-cloud-saved, .s3up-enabled-status .dashicons-video-alt3 {
+.cup-enabled-status .dashicons-cloud-saved, .cup-enabled-status .dashicons-video-alt3 {
     color: rgba(38, 169, 224, 1);
 }
 
@@ -154,11 +154,11 @@ p.lead {
   font-size: 1em;
 }
 
-#s3up-footer .text-muted {
+#cup-footer .text-muted {
   color: rgba(108, 117, 125, 0.5) !important;
 }
 
-.s3up-refresh-icon .dashicons {
+.cup-refresh-icon .dashicons {
   font-size: 25px;
 }
 
@@ -167,37 +167,37 @@ p.lead {
   font-weight: 500;
 }
 
-#s3up-error {
+#cup-error {
   display: none;
 }
 
-#s3up-scan-progress, #s3up-scan-remote-progress, #s3up-upload-progress, #s3up-download-progress {
+#cup-scan-progress, #cup-scan-remote-progress, #cup-upload-progress, #cup-download-progress {
   display: none;
 }
 
-#s3up-local-pie, #s3up-cloud-pie, .s3up-pie-wrapper {
+#cup-local-pie, #cup-cloud-pie, .cup-pie-wrapper {
   max-height: 300px;
   max-width: 600px;
 }
 
-#s3up-enable-errors .alert-link {
+#cup-enable-errors .alert-link {
   float: right;
 }
 
-#s3up-enable-errors .alert-link:hover {
+#cup-enable-errors .alert-link:hover {
   text-decoration: none;
 }
 
-#s3up-enable-errors .dashicons {
+#cup-enable-errors .dashicons {
   line-height: 1.2;
 }
 
-#s3up-collapse-errors {
+#cup-collapse-errors {
   max-height: 200px;
   overflow-y: scroll;
 }
 
-#s3up-collapse-errors .list-group-item {
+#cup-collapse-errors .list-group-item {
     padding: 0.25rem 1.25rem;
     margin: 0;
 }
@@ -215,7 +215,7 @@ li.nav-item {
     margin-top: .25em;
 }
 
-.s3up-video-thumb {
+.cup-video-thumb {
     background-size: cover;
     background-position: 50% 50%;
     background-repeat: no-repeat;

@@ -5,9 +5,9 @@
 
 
 /**
- * S3_Uploads_Filelist
+ * Cloud_Uploads_Filelist
  */
-class S3_Uploads_Filelist {
+class Cloud_Uploads_Filelist {
 
 	public $is_done = false;
 	public $paths_left = [];
@@ -28,7 +28,7 @@ class S3_Uploads_Filelist {
 	protected $insert_rows = 500;
 
 	/**
-	 * S3_Uploads_Filelist constructor.
+	 * Cloud_Uploads_Filelist constructor.
 	 *
 	 * @param string $root_path      The full path of the directory to iterate.
 	 * @param float  $timeout        Timeout in seconds.
@@ -52,13 +52,13 @@ class S3_Uploads_Filelist {
 		// If just starting reset the local DB list storage
 		if ( empty( $this->paths_left ) ) {
 			//TRUNCATE is fastest, try it first
-			$result = $wpdb->query( "TRUNCATE TABLE {$wpdb->base_prefix}s3_uploads_files" );
+			$result = $wpdb->query( "TRUNCATE TABLE {$wpdb->base_prefix}cloud_uploads_files" );
 			//Sometimes hosts don't give the DB user TRUNCATE permissions, so DELETE all if we have to.
 			if ( false === $result ) {
-				$wpdb->query( "DELETE FROM {$wpdb->base_prefix}s3_uploads_files WHERE 1" );
+				$wpdb->query( "DELETE FROM {$wpdb->base_prefix}cloud_uploads_files WHERE 1" );
 			}
 
-			update_site_option( 's3up_files_scanned', [
+			update_site_option( 'cup_files_scanned', [
 				'files_started'     => time(),
 				'files_finished'    => false,
 				'compare_started'   => false,
@@ -78,9 +78,9 @@ class S3_Uploads_Filelist {
 			// So we are done. Say so.
 			$this->is_done = true;
 
-			$progress                   = get_site_option( 's3up_files_scanned' );
+			$progress                   = get_site_option( 'cup_files_scanned' );
 			$progress['files_finished'] = time();
-			update_site_option( 's3up_files_scanned', $progress );
+			update_site_option( 'cup_files_scanned', $progress );
 		}
 	}
 
@@ -123,7 +123,7 @@ class S3_Uploads_Filelist {
 						$file = $this->get_file_info( $item );
 					} else {
 						$file = null;
-						error_log( sprintf( '[S3_UPLOADS Filelist Error] %s could not be read for syncing', $item ) );
+						error_log( sprintf( '[CLOUD_UPLOADS Filelist Error] %s could not be read for syncing', $item ) );
 					}
 
 					$file['name'] = $this->relative_path( $item );
@@ -154,16 +154,16 @@ class S3_Uploads_Filelist {
 	 */
 	protected function is_excluded( $path ) {
 		/**
-		 * Filters the built in list of file/directory exclusions that should not be synced to the S3 Uploads cloud. Be specific it's a simple strpos() search for the strings.
+		 * Filters the built in list of file/directory exclusions that should not be synced to the Cloud Uploads cloud. Be specific it's a simple strpos() search for the strings.
 		 *
 		 * @param  {array}  $exclusions  A list of file or directory names in the format of `/do-not-sync-this-dir/` or `somefilename.ext`.
 		 *
 		 * @return {array} A list of file or directory names in the format of `/do-not-sync-this-dir/` or `somefilename.ext`.
 		 * @since  1.0
-		 * @hook   s3_uploads_sync_exclusions
+		 * @hook   cloud_uploads_sync_exclusions
 		 *
 		 */
-		$exclusions = apply_filters( 's3_uploads_sync_exclusions', $this->exclusions );
+		$exclusions = apply_filters( 'cloud_uploads_sync_exclusions', $this->exclusions );
 		foreach ( $exclusions as $string ) {
 			if ( false !== strpos( $path, $string ) ) {
 				return true;
@@ -234,7 +234,7 @@ class S3_Uploads_Filelist {
 				$values[] = $wpdb->prepare( "(%s,%d,%d,%s,0)", $file['name'], $file['size'], $file['mtime'], $file['type'] );
 			}
 
-			$query = "INSERT INTO {$wpdb->base_prefix}s3_uploads_files (file, size, modified, type, errors) VALUES ";
+			$query = "INSERT INTO {$wpdb->base_prefix}cloud_uploads_files (file, size, modified, type, errors) VALUES ";
 			$query .= implode( ",\n", $values );
 			$query .= " ON DUPLICATE KEY UPDATE size = VALUES(size), modified = VALUES(modified), type = VALUES(type), errors = 0";
 			if ( $wpdb->query( $query ) ) {
