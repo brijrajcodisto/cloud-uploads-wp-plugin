@@ -281,6 +281,14 @@ class Cloud_Uploads_Admin {
 
       // }
 				?>
+				<?php if ( $this->auth_error ) { ?>
+				<div class="alert alert-danger mt-1 alert-dismissible fade show" role="alert">
+					<?php echo esc_html( $this->auth_error ); ?>
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<?php } ?>
 				<div id="cup-error" class="alert alert-danger mt-1" role="alert"></div>
 			<?php
 				if ($this->api->has_token() && $api_data ) {

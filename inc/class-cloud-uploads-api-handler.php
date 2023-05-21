@@ -14,14 +14,14 @@ class Cloud_Uploads_Api_Handler {
 	 *ś
 	 * @var string (URL)
 	 */
-	public $server_root = 'https://s3uploads.com/';
+	public $server_root = 'http://localhost:3000/';
 
 	/**
 	 * Path to the REST API on the server.
 	 *
 	 * @var string (URL)
 	 */
-	protected $rest_api = 'api/v1/';
+	protected $rest_api = 'api/cloud-uploads/';
 
 	/**
 	 * The complete REST API endpoint. Defined in constructor.
@@ -163,7 +163,7 @@ class Cloud_Uploads_Api_Handler {
 		}
 
 
-		$result = $this->call( "site/" . $this->get_site_id(), [], 'GET' );
+		$result = $this->call( "site", [], 'GET' );
 		if ( $result ) {
 			$result->refreshed = time();
 			//json_encode to prevent object injections
@@ -183,7 +183,9 @@ class Cloud_Uploads_Api_Handler {
 	 * @return bool
 	 */
 	public function authorize( $temp_token ) {
-		$result = $this->call( 'token', [ 'temp_token' => $temp_token ], 'POST' );
+		//echo 'auth function callled';
+		$this->set_token( $temp_token );
+		$result = $this->call( 'token', [ 'temp_token' => $temp_token ], 'GET' );
 		if ( $result ) {
 			$this->set_token( $result->api_token );
 			$this->set_site_id( $result->site_id );
@@ -228,7 +230,6 @@ class Cloud_Uploads_Api_Handler {
 		} else {
 			$url = $this->server_url . $endpoint;
 		}
-
 		return $url;
 	}
 
@@ -258,7 +259,7 @@ class Cloud_Uploads_Api_Handler {
 		);
 
 		if ( $this->has_token() ) {
-			$options['headers']['Authorization'] = 'Bearer ' . $this->get_token();
+			$options['headers']['token'] = $this->get_token();
 		}
 
 		if ( 'GET' == $method ) {
