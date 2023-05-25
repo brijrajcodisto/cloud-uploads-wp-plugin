@@ -303,14 +303,21 @@ class Cloud_Uploads_Admin {
 						$cloud_total_size = $api_data->stats->cloud->storage;
 					}
 					require_once( dirname( __FILE__ ) . '/templates/account.php' );
+					if ( isset( $api_data->site ) && $api_data->site->upload_writeable ) {
+						require_once( dirname( __FILE__ ) . '/templates/modal-upload.php' );
+						require_once( dirname( __FILE__ ) . '/templates/modal-enable.php' );
+					}
 				} else {
-					require_once( dirname( __FILE__ ) . '/templates/modal-scan.php' );
 					if ( ! empty( $stats['files_finished'] ) && $stats['files_finished'] >= ( time() - DAY_IN_SECONDS ) ) {
 						require_once( dirname( __FILE__ ) . '/templates/local-file-overview.php' );
 					} else {
 						require_once( dirname( __FILE__ ) . '/templates/welcome.php' );
 					}
 				}
+				require_once( dirname( __FILE__ ) . '/templates/modal-remote-scan.php' );
+				require_once( dirname( __FILE__ ) . '/templates/modal-scan.php' );
+				require_once( dirname( __FILE__ ) . '/templates/modal-delete.php' );
+				require_once( dirname( __FILE__ ) . '/templates/modal-download.php' );
 				require_once( dirname( __FILE__ ) . '/templates/footer.php' );
 				?>
 
@@ -467,11 +474,25 @@ class Cloud_Uploads_Admin {
   }
 
   function ajax_remote_filelist() {
+		global $wpdb;
 
+		if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( $_POST['nonce'], 'cup_scan' ) ) {
+			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
+		}
+		//this loop has a parallel status check, so we make the timeout 2/3 of max execution time.
+		$this->ajax_timelimit = max( 20, floor( ini_get( 'max_execution_time' ) * .6666 ) );
+		$this->sync_debug_log( "Ajax time limit: " . $this->ajax_timelimit );
+
+		try {
+			$this->api->get_site_cloud_files();
+		}catch(error) {
+			wp_send_json_error(esc_html__( 'Error while getting remote filelist.', 'cloud-uploads' ));
+		}
   }
 
   function ajax_sync() {
-
+		
+		//$this->api->call()
   }
 
   function ajax_sync_errors() {

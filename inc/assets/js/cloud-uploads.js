@@ -20,7 +20,7 @@ jQuery(document).ready(function ($) {
 			$('#cup-error').text(error_message.substr(0, 200)).show();
 			$('html, body').animate({scrollTop: 0}, 1000);
 		} else {
-			$('#cup-error').text('Some error occurred').show();
+			$('#cup-error').text('Some error occurred ').show();
 			$('html, body').animate({scrollTop: 0}, 1000);
 		}
 	};
@@ -147,6 +147,7 @@ jQuery(document).ready(function ($) {
 	};
 
 	var syncFilelist = function (nonce = '') {
+		console.log('sync File list');
 		if (cupStopLoop) {
 			cupStopLoop = false;
 			cupProcessingLoop = false;
@@ -164,6 +165,7 @@ jQuery(document).ready(function ($) {
 			ajaxurl + '?action=cloud-uploads-sync',
 			data,
 			function (json) {
+				console.log('success of cloud uploads sync');
 				cupLoopErrors = 0;
 				if (json.success) {
 					//$('.cup-progress-pcnt').text(json.data.pcnt_complete);
@@ -221,6 +223,7 @@ jQuery(document).ready(function ($) {
 			},
 			'json'
 		).fail(function () {
+			console.log('Failed in suync');
 			//if we get an error like 504 try up to 6 times with an exponential backoff to let the server cool down before giving up.
 			cupLoopErrors++;
 			if (cupLoopErrors > 6) {
@@ -430,6 +433,7 @@ jQuery(document).ready(function ($) {
 			$('#cup-sync-errors').hide();
 			$('#cup-sync-errors ul').empty();
 			cupStopLoop = false;
+			console.log('show upload modal');
 			syncFilelist();
 			setTimeout(function () {
 				getSyncStatus();

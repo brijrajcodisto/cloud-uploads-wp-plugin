@@ -125,6 +125,16 @@ class Cloud_Uploads_Api_Handler {
 	}
 
 		/**
+	 * Get list of files for a site from cloud.
+	 *
+	 * @param int $site_id The new site_id to store.
+	 */
+	public function get_site_cloud_files() {
+		//$this->api_site_id;
+		$site_files = $this->call('file', [], 'GET');
+	}
+
+		/**
 	 * Returns the canonical site_url that should be used for the site on the site.
 	 *
 	 * Define CLOUD_UPLOADS_SITE_URL to override or make static the url it should show as
