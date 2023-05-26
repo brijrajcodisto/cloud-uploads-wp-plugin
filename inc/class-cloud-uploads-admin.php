@@ -293,7 +293,7 @@ class Cloud_Uploads_Admin {
 			<?php
 				if ($this->api->has_token() && $api_data ) {
 					if ( ! $api_data->stats->site->files ) {
-						$synced           = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size FROM `{$wpdb->base_prefix}infinite_uploads_files` WHERE synced = 1" );
+						$synced           = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 1" );
 						$cloud_size       = $synced->size;
 						$cloud_files      = $synced->files;
 						$cloud_total_size = $api_data->stats->cloud->storage + $synced->size;
@@ -441,7 +441,6 @@ class Cloud_Uploads_Admin {
 
   function ajax_filelist() {
 		global $wpdb;
-
 		// check caps
 		if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( $_POST['nonce'], 'cup_scan' ) ) {
 			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
@@ -508,9 +507,9 @@ class Cloud_Uploads_Admin {
 		$this->sync_debug_log( "Ajax time limit: " . $this->ajax_timelimit );
 
 		try {
-			$local_files = $wpdb->get_results( $wpdb->prepare( "SELECT file, size FROM `{$wpdb->base_prefix}infinite_uploads_files` WHERE synced = 0 AND errors < 3 AND transfer_status IS NULL ORDER BY errors ASC, file ASC LIMIT %d", CLOUD_UPLOADS_SYNC_PER_LOOP ) );
-			return $this->api->call('files', $local_files, 'POST');
-			//wp_send_json_success( $files );
+			$local_files = $wpdb->get_results( $wpdb->prepare( "SELECT file, size, type FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 0 AND errors < 3 AND transfer_status IS NULL ORDER BY errors ASC, file ASC LIMIT %d", CLOUD_UPLOADS_SYNC_PER_LOOP ) );
+			$this->api->call('files', $local_files, 'POST');
+			wp_send_json_success( $local_files );//$this->api->call('files', $local_files, 'POST');
 		}catch(error) {
 			wp_send_json_error(esc_html__( 'Error while getting remote filelist.', 'cloud-uploads' ));
 		}
