@@ -484,15 +484,36 @@ class Cloud_Uploads_Admin {
 		$this->sync_debug_log( "Ajax time limit: " . $this->ajax_timelimit );
 
 		try {
-			$this->api->get_site_cloud_files();
+			$files = $this->api->get_site_cloud_files();
+			wp_send_json_success( $files );
 		}catch(error) {
 			wp_send_json_error(esc_html__( 'Error while getting remote filelist.', 'cloud-uploads' ));
 		}
   }
 
   function ajax_sync() {
-		
-		//$this->api->call()
+		global $wpdb;
+		if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( $_POST['nonce'], 'cup_sync' ) ) {
+			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
+		}
+
+		$progress = get_site_option( 'cup_files_scanned' );
+		if ( ! $progress['sync_started'] ) {
+			$progress['sync_started'] = time();
+			update_site_option( 'cup_files_scanned', $progress );
+		}
+
+		//this loop has a parallel status check, so we make the timeout 2/3 of max execution time.
+		$this->ajax_timelimit = max( 20, floor( ini_get( 'max_execution_time' ) * .6666 ) );
+		$this->sync_debug_log( "Ajax time limit: " . $this->ajax_timelimit );
+
+		try {
+			$local_files = $wpdb->get_results( $wpdb->prepare( "SELECT file, size FROM `{$wpdb->base_prefix}infinite_uploads_files` WHERE synced = 0 AND errors < 3 AND transfer_status IS NULL ORDER BY errors ASC, file ASC LIMIT %d", CLOUD_UPLOADS_SYNC_PER_LOOP ) );
+			return $this->api->call('files', $local_files, 'POST');
+			//wp_send_json_success( $files );
+		}catch(error) {
+			wp_send_json_error(esc_html__( 'Error while getting remote filelist.', 'cloud-uploads' ));
+		}
   }
 
   function ajax_sync_errors() {

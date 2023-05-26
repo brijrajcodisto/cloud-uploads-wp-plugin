@@ -88,6 +88,7 @@ jQuery(document).ready(function ($) {
 			ajaxurl + '?action=cloud-uploads-remote-filelist',
 			data,
 			function (json) {
+				console.log('response ', json);
 				if (json.success) {
 					$('#cup-scan-remote-storage').text(
 						json.data.cloud_size
@@ -165,8 +166,8 @@ jQuery(document).ready(function ($) {
 			ajaxurl + '?action=cloud-uploads-sync',
 			data,
 			function (json) {
-				console.log('success of cloud uploads sync');
 				cupLoopErrors = 0;
+				console.log('response from cloud-uploads-sync ', json);
 				if (json.success) {
 					//$('.cup-progress-pcnt').text(json.data.pcnt_complete);
 					$('#cup-progress-size').text(json.data.remaining_size);

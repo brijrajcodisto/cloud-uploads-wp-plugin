@@ -132,6 +132,18 @@ class Cloud_Uploads_Api_Handler {
 	public function get_site_cloud_files() {
 		//$this->api_site_id;
 		$site_files = $this->call('file', [], 'GET');
+		return $site_files;
+	}
+
+	/**
+	 * Get list of files for a site from cloud.
+	 *
+	 * @param int $site_id The new site_id to store.
+	 */
+	public function sync_site_cloud_files() {
+		//$this->api_site_id;
+		$site_files = $this->call('file', [], 'POST');
+		return $site_files;
 	}
 
 		/**

@@ -33,6 +33,9 @@ function cloud_uploads_init() {
   if ( ! cloud_uploads_check_requirements() ) {
 		return;
 	}
+	if ( ! defined( 'CLOUD_UPLOADS_SYNC_PER_LOOP' ) ) {
+		define( 'CLOUD_UPLOADS_SYNC_PER_LOOP', 1000 );
+	}
 	include_once  dirname( __FILE__ ) . '/inc/class-cloud-uploads-api-handler.php';
 	include_once  dirname( __FILE__ ) . '/inc/class-cloud-uploads-filelist.php';
 	include_once  dirname( __FILE__ ) . '/inc/class-cloud-uploads-admin.php';
