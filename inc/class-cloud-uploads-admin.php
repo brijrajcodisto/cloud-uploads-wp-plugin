@@ -513,9 +513,29 @@ class Cloud_Uploads_Admin {
 				$local_files[$i]->url = $path['baseurl'] . $local_files[$i]->file;
 			}
 			//wp_send_json_error($local_files[0]->url);
-			$cloud_files = $this->api->call('files', $local_files, 'POST');
-			wp_send_json_success( $local_files );
-		}catch(error) {
+			$files_synced = $this->api->call('files', $local_files, 'POST');
+			if($files_synced) {
+				// wp_send_json_success(array(
+				// 	'remaining_files'=>0,
+				// 	'pcnt_complete'=>100,
+				// 	'is_done'=>true,
+				// 	'permanent_errors'=>null
+				// ));
+				for($i=0; $i<sizeof($files_synced); $i++) {
+					if($files_synced[$i]->status === 1) {
+						$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET synced = 1 WHERE file = %s", $files_synced[$i]->file ) );
+					} else {
+						$matching = $wpdb->get_results( $wpdb->prepare( "SELECT file, errors FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE file = %s ORDER BY errors ASC, file ASC LIMIT 1", $files_synced[$i]->file ) );
+						$errors = $matching[0]->errors + 1;
+						$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET errors = %d WHERE file = %s", $errors, $files_synced[$i]->file ) );
+					}
+				}
+				$nonce = wp_create_nonce( 'cup_sync' );
+				wp_send_json_success( array_merge( compact( 'uploaded', 'is_done', 'errors', 'permanent_errors', 'nonce' ), $this->get_sync_stats() ) );
+			} else {
+				throw 'error';
+			}
+		}catch(Exception $e) {
 			wp_send_json_error(esc_html__( `Error while synching with cloud.`, 'cloud-uploads' ));
 		}
   }
