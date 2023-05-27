@@ -507,11 +507,16 @@ class Cloud_Uploads_Admin {
 		$this->sync_debug_log( "Ajax time limit: " . $this->ajax_timelimit );
 
 		try {
+			$path = $this->get_original_upload_dir_root();
 			$local_files = $wpdb->get_results( $wpdb->prepare( "SELECT file, size, type FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 0 AND errors < 3 AND transfer_status IS NULL ORDER BY errors ASC, file ASC LIMIT %d", CLOUD_UPLOADS_SYNC_PER_LOOP ) );
-			$this->api->call('files', $local_files, 'POST');
-			wp_send_json_success( $local_files );//$this->api->call('files', $local_files, 'POST');
+			for($i=0; $i<sizeof($local_files); $i++) {
+				$local_files[$i]->url = $path['baseurl'] . $local_files[$i]->file;
+			}
+			//wp_send_json_error($local_files[0]->url);
+			$cloud_files = $this->api->call('files', $local_files, 'POST');
+			wp_send_json_success( $local_files );
 		}catch(error) {
-			wp_send_json_error(esc_html__( 'Error while getting remote filelist.', 'cloud-uploads' ));
+			wp_send_json_error(esc_html__( `Error while synching with cloud.`, 'cloud-uploads' ));
 		}
   }
 
