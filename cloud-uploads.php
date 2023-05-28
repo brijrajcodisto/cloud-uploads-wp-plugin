@@ -36,13 +36,27 @@ function cloud_uploads_init() {
 	if ( ! defined( 'CLOUD_UPLOADS_SYNC_PER_LOOP' ) ) {
 		define( 'CLOUD_UPLOADS_SYNC_PER_LOOP', 1000 );
 	}
+	//add_filter( 'wp_image_editors', 'filter_editors', 9 );	
+	//include_once  dirname( __FILE__ ) . '/inc/class-cloud-uploads-image-editor-imagick.php';
+	include_once  dirname( __FILE__ ) . '/inc/class-cloud-uploads-rewriter.php';
 	include_once  dirname( __FILE__ ) . '/inc/class-cloud-uploads-api-handler.php';
 	include_once  dirname( __FILE__ ) . '/inc/class-cloud-uploads-filelist.php';
 	include_once  dirname( __FILE__ ) . '/inc/class-cloud-uploads-admin.php';
-	$admin = new Cloud_Uploads_Admin();
 	
-				
+	$admin = new Cloud_Uploads_Admin();
+
 	cloud_uploads_upgrade();
+}
+
+function filter_editors( $editors ) {
+
+	if ( ( $position = array_search( 'WP_Image_Editor_Imagick', $editors ) ) !== false ) {
+		unset( $editors[ $position ] );
+	}
+
+	array_unshift( $editors, 'Cloud_Uploads_Image_Editor_Imagick' );
+
+	return $editors;
 }
 
 function cloud_uploads_upgrade() {

@@ -135,6 +135,28 @@ class Cloud_Uploads_Admin {
 		}
 	}
 
+	public function set_rewrite_url() {
+		$api_data = $this->api->get_site_data();
+		if ( ( ! defined( 'CLOUD_UPLOADS_DISABLE_REPLACE_UPLOAD_URL' ) || ! CLOUD_UPLOADS_DISABLE_REPLACE_UPLOAD_URL ) && $api_data->site->cdn_enabled ) {
+			//makes this work with pre 3.5 MU ms_files rewriting (ie domain.com/files/filename.jpg)
+			$original_root_dirs = $this->get_original_upload_dir_root();
+			$replacements       = [ $original_root_dirs['baseurl'] ];
+			//if we have a custom domain add original cdn url for replacement
+			if ( $this->get_s3_url() !== 'https://' . $api_data->site->cname ) {
+				$replacements[] = 'https://' . $api_data->site->cname;
+			}
+
+			//makes this work with pre 3.5 MU ms_files rewriting (ie domain.com/files/filename.jpg)
+			if ( is_multisite() && substr_compare( $original_root_dirs['baseurl'], '/files', - strlen( '/files' ) ) === 0 ) {
+				$new_dirs = wp_get_upload_dir();
+				$cdn_url  = str_replace( 'iu://' . untrailingslashit( $this->bucket ), $api_data->site->cname, $new_dirs['basedir'] );
+			} else {
+				$cdn_url = $this->get_s3_url();
+			}
+			new Cloud_Uploads_Rewriter( $original_root_dirs['baseurl'], $replacements, $cdn_url );
+		}
+	}
+
 	public function get_filetypes( $is_chart = false, $cloud_types = false ) {
 		global $wpdb;
 
@@ -341,6 +363,44 @@ class Cloud_Uploads_Admin {
 		}
 	}
 
+		/**
+	 * Enable or disable cloud stream wrapper and url rewriting.
+	 *
+	 * @param bool $enabled
+	 */
+	public function toggle_cloud( $enabled ) {
+		if ( is_multisite() ) {
+			update_site_option( 'cup_enabled', $enabled );
+		} else {
+			update_option( 'cup_enabled', $enabled, true );
+		}
+		if ( $enabled ) {
+
+			//ping the API to let them know we've enabled the site
+			// $this->api->call( "site/" . $this->api->get_site_id() . "/enable", [], 'POST', [
+			// 	'timeout'  => 0.01,
+			// 	'blocking' => false,
+			// ] );
+			//add_filter( 'upload_dir', [ $this, 'filter_upload_dir' ] );
+			//not ideal but such a dramatic change of replacing upload dirs and urls can break some plugins/themes
+			wp_cache_flush();
+
+			//Hummingbird plugin
+			do_action( 'wphb_clear_page_cache' );
+
+			//WP rocket plugin
+			if ( function_exists( 'rocket_clean_domain' ) ) {
+				rocket_clean_domain();
+			}
+		}
+	}
+
+	public function filter_upload_dir( $dirs ) {
+		$api_data = $this->api->get_site_data();
+    $dirs['url'] = $api_data->site->cdn_url . $dirs['path'];
+		return $dirs;
+	}
+
 	public function get_sync_stats() {
 		global $wpdb;
 
@@ -508,19 +568,14 @@ class Cloud_Uploads_Admin {
 
 		try {
 			$path = $this->get_original_upload_dir_root();
-			$local_files = $wpdb->get_results( $wpdb->prepare( "SELECT file, size, type FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 0 AND errors < 3 AND transfer_status IS NULL ORDER BY errors ASC, file ASC LIMIT %d", CLOUD_UPLOADS_SYNC_PER_LOOP ) );
-			for($i=0; $i<sizeof($local_files); $i++) {
-				$local_files[$i]->url = $path['baseurl'] . $local_files[$i]->file;
-			}
-			//wp_send_json_error($local_files[0]->url);
-			$files_synced = $this->api->call('files', $local_files, 'POST');
-			if($files_synced) {
-				// wp_send_json_success(array(
-				// 	'remaining_files'=>0,
-				// 	'pcnt_complete'=>100,
-				// 	'is_done'=>true,
-				// 	'permanent_errors'=>null
-				// ));
+			$local_unsynced_files = $wpdb->get_results( $wpdb->prepare( "SELECT file, size, type FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 0 AND errors < 3 AND transfer_status IS NULL ORDER BY errors ASC, file ASC LIMIT %d", CLOUD_UPLOADS_SYNC_PER_LOOP ) );
+			
+			if(sizeof($local_unsynced_files) !== 0) {
+				
+				for($i=0; $i<sizeof($local_unsynced_files); $i++) {
+					$local_unsynced_files[$i]->url = $path['baseurl'] . $local_unsynced_files[$i]->file;
+				}
+				$files_synced = $this->api->call('files', $local_unsynced_files, 'POST');
 				for($i=0; $i<sizeof($files_synced); $i++) {
 					if($files_synced[$i]->status === 1) {
 						$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET synced = 1 WHERE file = %s", $files_synced[$i]->file ) );
@@ -530,11 +585,24 @@ class Cloud_Uploads_Admin {
 						$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET errors = %d WHERE file = %s", $errors, $files_synced[$i]->file ) );
 					}
 				}
-				$nonce = wp_create_nonce( 'cup_sync' );
-				wp_send_json_success( array_merge( compact( 'uploaded', 'is_done', 'errors', 'permanent_errors', 'nonce' ), $this->get_sync_stats() ) );
+				$is_done = true;
 			} else {
-				throw 'error';
+				$is_done = false;
+				$files_synced = $wpdb->get_results( $wpdb->prepare( "SELECT file, size, type FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 1 ORDER BY errors ASC, file ASC LIMIT %d", CLOUD_UPLOADS_SYNC_PER_LOOP ) );
 			}
+
+			if ( $is_done || timer_stop() >= $this->ajax_timelimit ) {
+				$permanent_errors = false;
+				if ( $is_done ) {
+					$permanent_errors          = (int) $wpdb->get_var( "SELECT count(*) FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 0 AND errors >= 3" );
+					$progress                  = get_site_option( 'cup_files_scanned' );
+					$progress['sync_finished'] = time();
+					update_site_option( 'cup_files_scanned', $progress );
+				}
+				$nonce = wp_create_nonce( 'cup_sync' );
+			}
+			wp_send_json_success( array_merge( compact( 'uploaded', 'is_done', 'errors', 'permanent_errors', 'nonce' ), $this->get_sync_stats() ) );
+		
 		}catch(Exception $e) {
 			wp_send_json_error(esc_html__( `Error while synching with cloud.`, 'cloud-uploads' ));
 		}
@@ -556,9 +624,19 @@ class Cloud_Uploads_Admin {
 
   }
 
-  function ajax_toggle() {
+	/**
+	 * Enable or disable url rewriting
+	 */
+	public function ajax_toggle() {
+		if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( $_POST['nonce'], 'cup_toggle' ) ) {
+			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
+		}
 
-  }
+		$enabled = (bool) $_REQUEST['enabled'];
+		$this->toggle_cloud( $enabled );
+
+		wp_send_json_success();
+	}
 
   function ajax_status() {
 
