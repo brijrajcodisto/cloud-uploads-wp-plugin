@@ -180,9 +180,12 @@ jQuery(document).ready(function ($) {
 						.attr('aria-valuenow', json.data.pcnt_complete)
 						.text(json.data.pcnt_complete + '%');
 					if (!json.data.is_done) {
-						//data.nonce = json.data.nonce; //save for future errors
-						//syncFilelist(json.data.nonce);
+						data.nonce = json.data.nonce; //save for future errors
+						console.log('sync not completed');
+						syncFilelist(json.data.nonce);
+						
 					} else {
+						console.log('sync completed ');
 						cupStopLoop = true;
 						$('#cup-upload-progress').hide();
 						//update values in next modal
