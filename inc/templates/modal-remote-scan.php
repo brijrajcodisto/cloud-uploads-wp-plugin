@@ -19,7 +19,7 @@
 						</div>
 					</div>
 					<div class="row justify-content-center mb-4">
-						<div class="col text-center text-muted">
+						<div class="col text-center text-muted" style="display:none;">
 							<span
 								class="h5" <?php echo ! $stats['cloud_files'] ? 'id="cup-scan-remote-progress"' : ''; ?>><?php printf( __( '<span id="cup-scan-remote-storage">%s</span> / <span id="cup-scan-remote-files">%s</span> Files Synced', 'cloud-uploads' ), $stats['cloud_size'], $stats['cloud_files'] ); ?></span>
 						</div>

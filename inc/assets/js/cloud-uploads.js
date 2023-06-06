@@ -93,7 +93,7 @@ jQuery(document).ready(function ($) {
 					$('#cup-scan-remote-storage').text(
 						json.data.cloud_size
 					);
-					$('#cup-scan-remote-files').text(json.data.cloud_files);
+					//$('#cup-scan-remote-files').text(json.data.cloud_files.length);
 					$('#cup-scan-remote-progress').show();
 					if (!json.data.is_done) {
 						fetchRemoteFilelist(

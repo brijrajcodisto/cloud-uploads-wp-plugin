@@ -408,6 +408,7 @@ class Cloud_Uploads_Admin {
 		$total     = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size, SUM(`transferred`) as transferred FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE 1" );
 		$local     = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size, SUM(`transferred`) as transferred FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE deleted = 0" );
 		$synced    = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size, SUM(`transferred`) as transferred FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 1" );
+		$synced_or_error    = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size, SUM(`transferred`) as transferred FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 1 AND errors >=3" );
 		$deletable = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size, SUM(`transferred`) as transferred FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 1 AND deleted = 0" );
 		$deleted   = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size, SUM(`transferred`) as transferred FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 1 AND deleted = 1" );
 
@@ -420,6 +421,7 @@ class Cloud_Uploads_Admin {
 			'local_files'     => number_format_i18n( (int) $local->files ),
 			'local_size'      => size_format( (int) $local->size, 2 ),
 			'cloud_files'     => number_format_i18n( (int) $synced->files ),
+			'synced_or_error'     => number_format_i18n( (int) $synced_or_error->files ),
 			'cloud_size'      => size_format( (int) $synced->size, 2 ),
 			'deletable_files' => number_format_i18n( (int) $deletable->files ),
 			'deletable_size'  => size_format( (int) $deletable->size, 2 ),
@@ -581,8 +583,14 @@ class Cloud_Uploads_Admin {
 			$is_done = false;
 			$uploaded = 0;
 			$errors = [];
+			$path = $this->get_original_upload_dir_root();
+			if($stats['synced_or_error'] == $stats['total_files']) {
+				//$this->api->call('sync', [], 'GET');
+			} else {
+				$this->api->call('sync', [], 'GET');
+			}
 			while ( ! $break ) {
-				$local_unsynced_files = $wpdb->get_results( $wpdb->prepare( "SELECT file, size, type FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 0 AND errors < 3 AND transfer_status IS NULL ORDER BY errors ASC, file ASC LIMIT %d", CLOUD_UPLOADS_SYNC_PER_LOOP ) );
+				$local_unsynced_files = $wpdb->get_results( $wpdb->prepare( "SELECT file, size, type FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 0 AND errors < 3 AND transfer_status IS NULL ORDER BY errors ASC, file ASC LIMIT %d", 20 ) );
 				
 				if(sizeof($local_unsynced_files) !== 0) {
 					for($i=0; $i<sizeof($local_unsynced_files); $i++) {
@@ -601,13 +609,14 @@ class Cloud_Uploads_Admin {
 					//$st = $stats['total_files'];
 					//wp_send_json_success( array_merge( compact( 'st' ),[] ) );
 					//$is_done = true;
+					$uploaded = sizeof($cloud_files_synced_or_error);
 					if(sizeof($cloud_files_synced_or_error) == $stats['total_files']) {
 						$is_done = true;
 					} else {
 						for($i=0; $i<sizeof($remote_files); $i++) {
 							$remote_files[$i]->name = '/'.$remote_files[$i]->name;
 							if($remote_files[$i]->synced) {
-								$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET synced = 1 WHERE file = %s", $remote_files[$i]->name ) );
+								$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET synced = 1, transferred = %d WHERE file = %s", $remote_files[$i]->size, $remote_files[$i]->name ) );
 							} else {
 								$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET errors = (errors + 1) WHERE file = %s", $remote_files[$i]->name ) );
 							}
@@ -657,6 +666,9 @@ class Cloud_Uploads_Admin {
 		}
   }
 
+	function ajax_sync_part2() {
+
+	}
   function ajax_sync_errors() {
 
   }
