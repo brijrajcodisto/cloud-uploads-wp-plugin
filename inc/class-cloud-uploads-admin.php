@@ -521,6 +521,28 @@ class Cloud_Uploads_Admin {
 		$is_done         = $filelist->is_done;
 		$nonce           = wp_create_nonce( 'cup_scan' );
 
+		// sync filelist with cloud
+		$break = false;
+		while(!$break) {
+			$is_done = false;
+			$path1 = $this->get_original_upload_dir_root();
+			$local_unsynced_files = $wpdb->get_results( $wpdb->prepare( "SELECT file, size, type FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 0 AND errors < 3 AND transfer_status IS NULL ORDER BY errors ASC, file ASC LIMIT %d", 50 ) );		
+			if(sizeof($local_unsynced_files) !== 0) {
+				for($i=0; $i<sizeof($local_unsynced_files); $i++) {
+					$local_unsynced_files[$i]->url = $path1['baseurl'] . $local_unsynced_files[$i]->file;
+					$local_unsynced_files[$i]->file = substr($local_unsynced_files[$i]->file, 1);
+				}
+				$files_synced = $this->api->call('files', $local_unsynced_files, 'POST');
+				for($i=0; $i<sizeof($local_unsynced_files); $i++) {
+					$local_unsynced_files[$i]->file = '/'.$local_unsynced_files[$i]->file;
+					$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET transfer_status = 'tranferring' WHERE file = %s", $local_unsynced_files[$i]->file ) );
+				}
+			} else {
+				$is_done = true;
+				$break = true;
+			}
+		}
+		// end sync filelist with cloud
 		$data  = compact( 'this_file_count', 'is_done', 'remaining_dirs', 'nonce' );
 		$stats = $this->get_sync_stats();
 		if ( $stats ) {
@@ -531,7 +553,6 @@ class Cloud_Uploads_Admin {
 		if ( isset( $promise ) ) {
 			$promise->wait();
 		}
-
 		wp_send_json_success( $data );
   }
 
@@ -590,41 +611,25 @@ class Cloud_Uploads_Admin {
 				$this->api->call('sync', [], 'GET');
 			}
 			while ( ! $break ) {
-				$local_unsynced_files = $wpdb->get_results( $wpdb->prepare( "SELECT file, size, type FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 0 AND errors < 3 AND transfer_status IS NULL ORDER BY errors ASC, file ASC LIMIT %d", 20 ) );
-				
-				if(sizeof($local_unsynced_files) !== 0) {
-					for($i=0; $i<sizeof($local_unsynced_files); $i++) {
-						$local_unsynced_files[$i]->url = $path['baseurl'] . $local_unsynced_files[$i]->file;
-						$local_unsynced_files[$i]->file = substr($local_unsynced_files[$i]->file, 1);
-					}
-					$files_synced = $this->api->call('files', $local_unsynced_files, 'POST');
-					for($i=0; $i<sizeof($local_unsynced_files); $i++) {
-						$local_unsynced_files[$i]->file = '/'.$local_unsynced_files[$i]->file;
-						$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET transfer_status = 'tranferring' WHERE file = %s", $local_unsynced_files[$i]->file ) );
-					}
+				$site_files_response = $this->api->call('file', [], 'GET');
+				$remote_files = $site_files_response->cloud_files;
+				$cloud_files_synced_or_error = array_filter($site_files_response->cloud_files,  [ &$this, 'cloud_files_synced_filter' ]);
+				//$st = $stats['total_files'];
+				//wp_send_json_success( array_merge( compact( 'st' ),[] ) );
+				//$is_done = true;
+				$uploaded = sizeof($cloud_files_synced_or_error);
+				if(sizeof($cloud_files_synced_or_error) == $stats['total_files']) {
+					$is_done = true;
 				} else {
-					$site_files_response = $this->api->call('file', [], 'GET');
-					$remote_files = $site_files_response->cloud_files;
-					$cloud_files_synced_or_error = array_filter($site_files_response->cloud_files,  [ &$this, 'cloud_files_synced_filter' ]);
-					//$st = $stats['total_files'];
-					//wp_send_json_success( array_merge( compact( 'st' ),[] ) );
-					//$is_done = true;
-					$uploaded = sizeof($cloud_files_synced_or_error);
-					if(sizeof($cloud_files_synced_or_error) == $stats['total_files']) {
-						$is_done = true;
-					} else {
-						for($i=0; $i<sizeof($remote_files); $i++) {
-							$remote_files[$i]->name = '/'.$remote_files[$i]->name;
-							if($remote_files[$i]->synced) {
-								$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET synced = 1, transferred = %d WHERE file = %s", $remote_files[$i]->size, $remote_files[$i]->name ) );
-							} else {
-								$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET errors = (errors + 1) WHERE file = %s", $remote_files[$i]->name ) );
-							}
+					for($i=0; $i<sizeof($remote_files); $i++) {
+						$remote_files[$i]->name = '/'.$remote_files[$i]->name;
+						if($remote_files[$i]->synced) {
+							$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET synced = 1, transferred = %d WHERE file = %s", $remote_files[$i]->size, $remote_files[$i]->name ) );
+						} else {
+							$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET errors = (errors + 1) WHERE file = %s", $remote_files[$i]->name ) );
 						}
 					}
-					
 				}
-
 				if ( $is_done || timer_stop() >= $this->ajax_timelimit ) {
 					$break = true;
 					$permanent_errors = false;
