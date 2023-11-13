@@ -1,19 +1,16 @@
 <?php
 /*
- * Plugin Name: Cloud Uploads
+ * Plugin Name: Cloud Uploads Pro
  * Description: Migrate and store your wordpress upload files remotely on cloud storage along with cdn for fast delivery.
  * Version: 2.0
  * Author: Brij Raj Singh
- * Author URI: https://s3uploads.com
- * Text Domain: cloud-uploads
+ * Text Domain: cloud-uploads-pro
  * Requires at least: 5.3
  * Requires PHP: 7.0
  * License: GPLv2
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Network: true
  *
- *
- * Copyright 2023 s3uploads.com
 */
 if( ! defined( 'ABSPATH' ) ) {
 	return;

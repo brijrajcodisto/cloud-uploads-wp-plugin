@@ -1,4 +1,4 @@
-=== Cloud Uploads - Offload Media and Video to Cloud Storage ===
+=== Cloud Uploads Pro - Offload Media and Video to Cloud Storage ===
 
 Requires at least: 5.3
 Tested up to: 6.2.2
@@ -34,5 +34,4 @@ Upload directly to your Cloud Uploads cloud storage and manage your files right 
 - **Unlimited sites** - you can connect just one site, hundreds, or thousands...no extra license costs
 - **Media storage analyzer** - For both your local and cloud-connected media files located in the Media Library
 - **Auto-connect** – no confusing cloud account API's. Simply click to connect
-- **No 3rd-party utility needed** - developed and maintained by the team behind Infinite Uploads
 - **Secure** - move, store, and deliver files with peace-of-mind
