@@ -1,7 +1,7 @@
 === Cloud Uploads Pro - Offload Media and Video to Cloud Storage ===
 
 Requires at least: 5.3
-Tested up to: 6.2.2
+Tested up to: 6.4.2
 Stable tag: 1.0
 Requires PHP: 5.6
 Contributors: brijrajs
