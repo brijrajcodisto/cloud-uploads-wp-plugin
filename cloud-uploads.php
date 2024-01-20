@@ -113,7 +113,7 @@ function cloud_uploads_check_requirements() {
 function cloud_uploads_outdated_php_version_notice() {
 	?>
 	<div class="notice notice-warning is-dismissible"><p>
-			<?php printf( esc_html__( 'The Cloud Uploads plugin requires PHP version 5.5.0 or higher. Your server is running PHP version %s.', 'cloud-uploads' ), PHP_VERSION ); ?>
+			<?php printf( esc_html__( 'The Cloud Uploads plugin requires PHP version 5.5.0 or higher. Your server is running PHP version %s.', 'cloud-uploads' ), esc_html(PHP_VERSION) ); ?>
 		</p></div>
 	<?php
 }
@@ -127,7 +127,7 @@ function cloud_uploads_outdated_wp_version_notice() {
 	global $wp_version;
 	?>
 	<div class="notice notice-warning is-dismissible"><p>
-			<?php printf( esc_html__( 'The Cloud Uploads plugin requires WordPress version 5.3 or higher. Your server is running WordPress version %s.', 'cloud-uploads' ), $wp_version ); ?>
+			<?php printf( esc_html__( 'The Cloud Uploads plugin requires WordPress version 5.3 or higher. Your server is running WordPress version %s.', 'cloud-uploads' ), esc_html($wp_version) ); ?>
 		</p></div>
 	<?php
 }

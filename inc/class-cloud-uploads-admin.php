@@ -163,12 +163,12 @@ class Cloud_Uploads_Admin {
 			foreach ( $data as $item ) {
 				$chart['datasets'][0]['data'][]            = $item->size;
 				$chart['datasets'][0]['backgroundColor'][] = $item->color;
-				$chart['labels'][]                         = $item->label . ": " . sprintf( _n( '%s file totalling %s', '%s files totalling %s', $item->files, 'cloud-uploads' ), number_format_i18n( $item->files ), size_format( $item->size, 1 ) );
+				$chart['labels'][]                         = $item->label . ": " . sprintf( _n( '%s file totalling %s', '%s files totalling %s', $item->files, 'cloud-uploads' ), esc_html__(number_format_i18n( $item->files )), esc_html__(size_format( $item->size, 1 )) );
 			}
 
 			$total_size     = array_sum( wp_list_pluck( $data, 'size' ) );
 			$total_files    = array_sum( wp_list_pluck( $data, 'files' ) );
-			$chart['total'] = sprintf( _n( '%s / %s File', '%s / %s Files', $total_files, 'cloud-uploads' ), size_format( $total_size, 2 ), number_format_i18n( $total_files ) );
+			$chart['total'] = sprintf( _n( '%s / %s File', '%s / %s Files', $total_files, 'cloud-uploads' ), esc_html__(size_format( $total_size, 2 )), esc_html__(number_format_i18n( $total_files )) );
 
 			return $chart;
 		}

@@ -123,7 +123,7 @@ class Cloud_Uploads_Filelist {
 						$file = $this->get_file_info( $item );
 					} else {
 						$file = null;
-						error_log( sprintf( '[CLOUD_UPLOADS Filelist Error] %s could not be read for syncing', $item ) );
+						error_log( sprintf( '[CLOUD_UPLOADS Filelist Error] %s could not be read for syncing', esc_html__($item) ) );
 					}
 
 					$file['name'] = $this->relative_path( $item );
