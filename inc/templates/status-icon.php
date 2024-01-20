@@ -1,3 +1,6 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly      
+?>
 <span class="m-0 p-0 text-muted cup-enabled-status">
 	<?php esc_html_e( 'Status', 'cloud-uploads' ); ?>
 	<?php if ( isset( $api_data->site ) && ! $api_data->site->upload_writeable ) { ?>

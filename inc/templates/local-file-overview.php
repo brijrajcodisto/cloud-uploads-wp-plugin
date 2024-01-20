@@ -1,3 +1,6 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly      
+?>
 <div id="local-file-overview-page" class="card">
 	<div class="card-header">
 		<div class="d-flex align-items-center">

@@ -1,3 +1,6 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly      
+?>
 <div id="cup-footer" class="container mt-5">
 	<div class="row">
 		<div class="col-sm text-center text-muted">

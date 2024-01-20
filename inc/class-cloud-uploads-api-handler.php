@@ -7,6 +7,8 @@
 /**
  * The main API class.
  */
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly      
+
 class Cloud_Uploads_Api_Handler {
   
 	/**

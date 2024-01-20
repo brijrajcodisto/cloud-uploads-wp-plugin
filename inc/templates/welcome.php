@@ -1,3 +1,6 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly      
+?>
 <div id="welcome-page" class="card">
 	<div class="card-body cloud p-md-5">
 		<div class="row justify-content-center mb-5 mt-3">

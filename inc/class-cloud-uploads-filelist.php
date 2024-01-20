@@ -7,6 +7,8 @@
 /**
  * Cloud_Uploads_Filelist
  */
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly      
+
 class Cloud_Uploads_Filelist {
 
 	public $is_done = false;

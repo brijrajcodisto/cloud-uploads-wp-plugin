@@ -1,5 +1,7 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly      
+
 class Cloud_Uploads_Admin {
   private $api;
   private static $instance;

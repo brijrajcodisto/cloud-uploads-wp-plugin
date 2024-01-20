@@ -12,11 +12,10 @@
  * Network: true
  *
 */
-if( ! defined( 'ABSPATH' ) ) {
-	return;
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly      
 
-define( 'CLOUD_UPLOADS_VERSION', '2.0' );
+
+define( 'CLOUD_UPLOADS_VERSION', '1.0' );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once dirname( __FILE__ ) . '/inc/class-cloud-uploads-wp-cli-command.php';
