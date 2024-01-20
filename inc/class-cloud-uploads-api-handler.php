@@ -63,8 +63,8 @@ class Cloud_Uploads_Api_Handler {
 		}
 		$this->server_url = $this->server_root . $this->rest_api;
 
-		$this->api_token   = get_site_option( 'cup_apitoken' );
-		$this->api_site_id = get_site_option( 'cup_site_id' );
+		$this->api_token   = get_site_option( 'cloud_uploads_apitoken' );
+		$this->api_site_id = get_site_option( 'cloud_uploads_site_id' );
 
 		// Schedule automatic data update on the main site of the network.
 		if ( is_main_site() ) {
@@ -102,7 +102,7 @@ class Cloud_Uploads_Api_Handler {
 	 */
 	public function set_token( $token ) {
 		$this->api_token = $token;
-		update_site_option( 'cup_apitoken', $token );
+		update_site_option( 'cloud_uploads_apitoken', $token );
 	}
 
 	/**
@@ -121,7 +121,7 @@ class Cloud_Uploads_Api_Handler {
 	 */
 	public function set_site_id( $site_id ) {
 		$this->api_site_id = $site_id;
-		update_site_option( 'cup_site_id', $site_id );
+		update_site_option( 'cloud_uploads_site_id', $site_id );
 	}
 
 		/**
@@ -152,7 +152,7 @@ class Cloud_Uploads_Api_Handler {
 		}
 
 		if ( ! $force_refresh ) {
-			$data = get_site_option( 'cup_api_data' );
+			$data = get_site_option( 'cloud_uploads_api_data' );
 			if ( $data ) {
 				$data = json_decode( $data );
 
@@ -167,7 +167,7 @@ class Cloud_Uploads_Api_Handler {
 		if ( $result ) {
 			$result->refreshed = time();
 			//json_encode to prevent object injections
-			update_site_option( 'cup_api_data', json_encode( $result ) );
+			update_site_option( 'cloud_uploads_api_data', json_encode( $result ) );
 
 			return $result;
 		}

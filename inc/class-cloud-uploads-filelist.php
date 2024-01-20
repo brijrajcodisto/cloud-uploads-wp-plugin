@@ -58,7 +58,7 @@ class Cloud_Uploads_Filelist {
 				$wpdb->query( "DELETE FROM {$wpdb->base_prefix}cloud_uploads_files WHERE 1" );
 			}
 
-			update_site_option( 'cup_files_scanned', [
+			update_site_option( 'cloud_uploads_files_scanned', [
 				'files_started'     => time(),
 				'files_finished'    => false,
 				'compare_started'   => false,
@@ -78,9 +78,9 @@ class Cloud_Uploads_Filelist {
 			// So we are done. Say so.
 			$this->is_done = true;
 
-			$progress                   = get_site_option( 'cup_files_scanned' );
+			$progress                   = get_site_option( 'cloud_uploads_files_scanned' );
 			$progress['files_finished'] = time();
-			update_site_option( 'cup_files_scanned', $progress );
+			update_site_option( 'cloud_uploads_files_scanned', $progress );
 		}
 	}
 

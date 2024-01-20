@@ -10,7 +10,7 @@ jQuery(document).ready(function ($) {
 	//show a confirmation warning if leaving page during a bulk action
 	$(window).on("unload", function () {
 		if (cupProcessingLoop) {
-			return cup_data.strings.leave_confirmation;
+			return cloud_uploads_data.strings.leave_confirmation;
 		}
 	});
 
@@ -37,7 +37,7 @@ jQuery(document).ready(function ($) {
 		if (nonce) {
 			data.nonce = nonce;
 		} else {
-			data.nonce = cup_data.nonce.scan;
+			data.nonce = cloud_uploads_data.nonce.scan;
 		}
 		$.post(
 			ajaxurl + '?action=cloud-uploads-filelist',
@@ -65,7 +65,7 @@ jQuery(document).ready(function ($) {
 			},
 			'json'
 		).fail(function () {
-			showError(cup_data.strings.ajax_error);
+			showError(cloud_uploads_data.strings.ajax_error);
 			$('.modal').modal('hide');
 		});
 	};
@@ -82,7 +82,7 @@ jQuery(document).ready(function ($) {
 		if (nonce) {
 			data.nonce = nonce;
 		} else {
-			data.nonce = cup_data.nonce.scan;
+			data.nonce = cloud_uploads_data.nonce.scan;
 		}
 		$.post(
 			ajaxurl + '?action=cloud-uploads-remote-filelist',
@@ -141,7 +141,7 @@ jQuery(document).ready(function ($) {
 			},
 			'json'
 		).fail(function () {
-			showError(cup_data.strings.ajax_error);
+			showError(cloud_uploads_data.strings.ajax_error);
 			$('.modal').modal('hide');
 		});
 	};
@@ -158,7 +158,7 @@ jQuery(document).ready(function ($) {
 		if (nonce) {
 			data.nonce = nonce;
 		} else {
-			data.nonce = cup_data.nonce.sync;
+			data.nonce = cloud_uploads_data.nonce.sync;
 		}
 		cupAjaxCall = $.post(
 			ajaxurl + '?action=cloud-uploads-sync',
@@ -224,7 +224,7 @@ jQuery(document).ready(function ($) {
 			//if we get an error like 504 try up to 6 times with an exponential backoff to let the server cool down before giving up.
 			cupLoopErrors++;
 			if (cupLoopErrors > 6) {
-				showError(cup_data.strings.ajax_error);
+				showError(cloud_uploads_data.strings.ajax_error);
 				$('.modal').modal('hide');
 				cupLoopErrors = 0;
 				cupProcessingLoop = false;
@@ -269,7 +269,7 @@ jQuery(document).ready(function ($) {
 			'json'
 		)
 			.fail(function () {
-				showError(cup_data.strings.ajax_error);
+				showError(cloud_uploads_data.strings.ajax_error);
 			})
 			.always(function () {
 				setTimeout(function () {
@@ -286,7 +286,7 @@ jQuery(document).ready(function ($) {
 
 		$.post(
 			ajaxurl + '?action=cloud-uploads-delete',
-			{nonce: cup_data.nonce.delete},
+			{nonce: cloud_uploads_data.nonce.delete},
 			function (json) {
 				if (json.success) {
 					//$('.cup-progress-pcnt').text(json.data.pcnt_complete);
@@ -305,7 +305,7 @@ jQuery(document).ready(function ($) {
 			},
 			'json'
 		).fail(function () {
-			showError(cup_data.strings.ajax_error);
+			showError(cloud_uploads_data.strings.ajax_error);
 			$('.modal').modal('hide');
 		});
 	};
@@ -322,7 +322,7 @@ jQuery(document).ready(function ($) {
 		if (nonce) {
 			data.nonce = nonce;
 		} else {
-			data.nonce = cup_data.nonce.download;
+			data.nonce = cloud_uploads_data.nonce.download;
 		}
 		$.post(
 			ajaxurl + '?action=cloud-uploads-download',
@@ -375,7 +375,7 @@ jQuery(document).ready(function ($) {
 			//if we get an error like 504 try up to 6 times before giving up.
 			cupLoopErrors++;
 			if (cupLoopErrors > 6) {
-				showError(cup_data.strings.ajax_error);
+				showError(cloud_uploads_data.strings.ajax_error);
 				$('.modal').modal('hide');
 				cupLoopErrors = 0;
 				cupProcessingLoop = false;
@@ -484,7 +484,7 @@ jQuery(document).ready(function ($) {
 			},
 			'json'
 		).fail(function () {
-			showError(cup_data.strings.ajax_error);
+			showError(cloud_uploads_data.strings.ajax_error);
 			$('.modal').modal('hide');
 		});
 	});
@@ -530,7 +530,7 @@ jQuery(document).ready(function ($) {
 		$('#cup-enable-spinner').removeClass('text-hide');
 		$.post(
 			ajaxurl + '?action=cloud-uploads-toggle',
-			{enabled: true, nonce: cup_data.nonce.toggle},
+			{enabled: true, nonce: cloud_uploads_data.nonce.toggle},
 			function (json) {
 				if (json.success) {
 					location.reload();
@@ -539,7 +539,7 @@ jQuery(document).ready(function ($) {
 			},
 			'json'
 		).fail(function () {
-			showError(cup_data.strings.ajax_error);
+			showError(cloud_uploads_data.strings.ajax_error);
 			$('#cup-enable-spinner').addClass('text-hide');
 			$('#cup-enable-button').show();
 			$('.modal').modal('hide');
@@ -552,7 +552,7 @@ jQuery(document).ready(function ($) {
 		$('#cup-enable-video-spinner').removeClass('d-none').addClass('d-block');
 		$.post(
 			ajaxurl + '?action=cloud-uploads-video-activate',
-			{nonce: cup_data.nonce.video},
+			{nonce: cloud_uploads_data.nonce.video},
 			function (json) {
 				if (json.success) {
 					location.reload();
@@ -564,7 +564,7 @@ jQuery(document).ready(function ($) {
 			},
 			'json'
 		).fail(function () {
-			showError(cup_data.strings.ajax_error);
+			showError(cloud_uploads_data.strings.ajax_error);
 			$('#cup-enable-video-spinner').addClass('d-none').removeClass('d-block');
 			$('#cup-enable-video-button').show();
 		});
@@ -602,7 +602,7 @@ jQuery(document).ready(function ($) {
 		if (pie1) {
 			var config_local = {
 				type: 'pie',
-				data: cup_data.local_types,
+				data: cloud_uploads_data.local_types,
 				options: {
 					responsive: true,
 					legend: false,
@@ -618,7 +618,7 @@ jQuery(document).ready(function ($) {
 						position: 'bottom',
 						fontSize: 18,
 						fontStyle: 'normal',
-						text: cup_data.local_types.total,
+						text: cloud_uploads_data.local_types.total,
 					},
 				},
 			};
@@ -631,7 +631,7 @@ jQuery(document).ready(function ($) {
 		if (pie2) {
 			var config_cloud = {
 				type: 'pie',
-				data: cup_data.cloud_types,
+				data: cloud_uploads_data.cloud_types,
 				options: {
 					responsive: true,
 					legend: false,
@@ -647,7 +647,7 @@ jQuery(document).ready(function ($) {
 						position: 'bottom',
 						fontSize: 18,
 						fontStyle: 'normal',
-						text: cup_data.cloud_types.total,
+						text: cloud_uploads_data.cloud_types.total,
 					},
 				},
 			};

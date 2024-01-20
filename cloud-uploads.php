@@ -41,7 +41,7 @@ function cloud_uploads_init() {
 
 function cloud_uploads_upgrade() {
 	// Install the needed DB table if not already.
-	$installed = get_site_option( 'cup_installed' );
+	$installed = get_site_option( 'cloud_uploads_installed' );
 	if ( CLOUD_UPLOADS_VERSION != $installed ) {
 		cloud_uploads_install();
 	}
@@ -51,9 +51,9 @@ function cloud_uploads_install() {
   global $wpdb;
   //prevent race condition during upgrade by setting option before running potentially long query
 	if ( is_multisite() ) {
-		update_site_option( 'cup_installed', CLOUD_UPLOADS_VERSION );
+		update_site_option( 'cloud_uploads_installed', CLOUD_UPLOADS_VERSION );
 	} else {
-		update_option( 'cup_installed', CLOUD_UPLOADS_VERSION, true );
+		update_option( 'cloud_uploads_installed', CLOUD_UPLOADS_VERSION, true );
 	}
   $charset_collate = $wpdb->get_charset_collate();
 
@@ -138,5 +138,5 @@ function cloud_uploads_outdated_wp_version_notice() {
  * @return bool
  */
 function cloud_uploads_enabled() {
-	return get_site_option( 'cup_enabled' );
+	return get_site_option( 'cloud_uploads_enabled' );
 }

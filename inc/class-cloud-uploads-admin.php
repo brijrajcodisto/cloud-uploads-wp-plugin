@@ -108,15 +108,15 @@ class Cloud_Uploads_Admin {
 		}
 
 		$data['nonce'] = [
-			'scan'     => wp_create_nonce( 'cup_scan' ),
-			'sync'     => wp_create_nonce( 'cup_sync' ),
-			'delete'   => wp_create_nonce( 'cup_delete' ),
-			'download' => wp_create_nonce( 'cup_download' ),
-			'toggle'   => wp_create_nonce( 'cup_toggle' ),
-			'video'    => wp_create_nonce( 'cup_video' ),
+			'scan'     => wp_create_nonce( 'cloud_uploads_scan' ),
+			'sync'     => wp_create_nonce( 'cloud_uploads_sync' ),
+			'delete'   => wp_create_nonce( 'cloud_uploads_delete' ),
+			'download' => wp_create_nonce( 'cloud_uploads_download' ),
+			'toggle'   => wp_create_nonce( 'cloud_uploads_toggle' ),
+			'video'    => wp_create_nonce( 'cloud_uploads_video' ),
 		];
 
-		wp_localize_script( 'cup-js', 'cup_data', $data );
+		wp_localize_script( 'cup-js', 'cloud_uploads_data', $data );
 	}
 
 	/**
@@ -221,7 +221,7 @@ class Cloud_Uploads_Admin {
 		}
 
 		if ( isset( sanitize_text_field(wp_unslash($_GET['clear'])) ) ) {
-			delete_site_option( 'cup_files_scanned' );
+			delete_site_option( 'cloud_uploads_files_scanned' );
 			wp_safe_redirect( $this->settings_url() );
 		}
 
@@ -263,7 +263,7 @@ class Cloud_Uploads_Admin {
 
       //   require_once( dirname( __FILE__ ) . '/templates/header-columns.php' );
 
-			// 	if ( ! get_site_option( 'cup_enabled' ) ) {
+			// 	if ( ! get_site_option( 'cloud_uploads_enabled' ) ) {
 			// 		require_once( dirname( __FILE__ ) . '/templates/modal-scan.php' );
 			// 		if ( isset( $api_data->site ) && $api_data->site->upload_writeable ) {
 			// 			//require_once( dirname( __FILE__ ) . '/templates/modal-upload.php' );
@@ -335,7 +335,7 @@ class Cloud_Uploads_Admin {
 		$deletable = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size, SUM(`transferred`) as transferred FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 1 AND deleted = 0" );
 		$deleted   = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size, SUM(`transferred`) as transferred FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 1 AND deleted = 1" );
 
-		$progress = (array) get_site_option( 'cup_files_scanned' );
+		$progress = (array) get_site_option( 'cloud_uploads_files_scanned' );
 
 		return array_merge( $progress, [
 			'is_data'         => (bool) $total->files,
@@ -428,7 +428,7 @@ class Cloud_Uploads_Admin {
 		global $wpdb;
 
 		// check caps
-		if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( sanitize_text_field(wp_unslash($_POST['nonce'])), 'cup_scan' ) ) {
+		if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( sanitize_text_field(wp_unslash($_POST['nonce'])), 'cloud_uploads_scan' ) ) {
 			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
 		}
 
@@ -442,7 +442,7 @@ class Cloud_Uploads_Admin {
 		$this_file_count = count( $filelist->file_list );
 		$remaining_dirs  = $filelist->paths_left;
 		$is_done         = $filelist->is_done;
-		$nonce           = wp_create_nonce( 'cup_scan' );
+		$nonce           = wp_create_nonce( 'cloud_uploads_scan' );
 
 		$data  = compact( 'this_file_count', 'is_done', 'remaining_dirs', 'nonce' );
 		$stats = $this->get_sync_stats();

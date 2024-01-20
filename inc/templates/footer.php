@@ -6,11 +6,11 @@
 	</div>
 	<div class="row mt-3">
 		<div class="col-sm text-center text-muted">
-			<a href="<?php echo esc_url( Cloud_Uploads_Admin::api_url( '/support/?utm_source=cup_plugin&utm_medium=plugin&utm_campaign=cup_plugin&utm_content=footer&utm_term=support' ) ); ?>"
+			<a href="<?php echo esc_url( Cloud_Uploads_Admin::api_url( '/support/?utm_source=cloud_uploads_plugin&utm_medium=plugin&utm_campaign=cloud_uploads_plugin&utm_content=footer&utm_term=support' ) ); ?>"
 			   class="text-muted text-decoration-none"><?php esc_html_e( "Support", 'cloud-uploads' ); ?></a> |
-			<a href="<?php echo esc_url( Cloud_Uploads_Admin::get_instance()->api_url( '/terms-of-service/?utm_source=cup_plugin&utm_medium=plugin&utm_campaign=cup_plugin&utm_content=footer&utm_term=terms' ) ); ?>"
+			<a href="<?php echo esc_url( Cloud_Uploads_Admin::get_instance()->api_url( '/terms-of-service/?utm_source=cloud_uploads_plugin&utm_medium=plugin&utm_campaign=cloud_uploads_plugin&utm_content=footer&utm_term=terms' ) ); ?>"
 			   class="text-muted text-decoration-none"><?php esc_html_e( "Terms of Service", 'cloud-uploads' ); ?></a> |
-			<a href="<?php echo esc_url( Cloud_Uploads_Admin::get_instance()->api_url( '/privacy/?utm_source=cup_plugin&utm_medium=plugin&utm_campaign=cup_plugin&utm_content=footer&utm_term=privacy' ) ); ?>"
+			<a href="<?php echo esc_url( Cloud_Uploads_Admin::get_instance()->api_url( '/privacy/?utm_source=cloud_uploads_plugin&utm_medium=plugin&utm_campaign=cloud_uploads_plugin&utm_content=footer&utm_term=privacy' ) ); ?>"
 			   class="text-muted text-decoration-none"><?php esc_html_e( "Privacy Policy", 'cloud-uploads' ); ?></a>
 		</div>
 	</div>
