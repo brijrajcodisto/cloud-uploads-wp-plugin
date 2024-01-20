@@ -211,8 +211,8 @@ class Cloud_Uploads_Admin {
 			wp_die( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
 		}
 
-		if ( ! empty( sanitize_text_field($_GET['temp_token'] )) ) {
-			$result = $this->api->authorize( sanitize_text_field($_GET['temp_token']));
+		if ( ! empty( sanitize_text_field(wp_unslash($_GET['temp_token'] ))) ) {
+			$result = $this->api->authorize( sanitize_text_field(wp_unslash($_GET['temp_token'])));
 			if ( ! $result ) {
 				$this->auth_error = $this->api->api_error;
 			} else {
@@ -220,17 +220,17 @@ class Cloud_Uploads_Admin {
 			}
 		}
 
-		if ( isset( sanitize_text_field($_GET['clear']) ) ) {
+		if ( isset( sanitize_text_field(wp_unslash($_GET['clear'])) ) ) {
 			delete_site_option( 'cup_files_scanned' );
 			wp_safe_redirect( $this->settings_url() );
 		}
 
-		if ( isset( sanitize_text_field($_GET['refresh'] )) ) {
+		if ( isset( sanitize_text_field(wp_unslash ($_GET['refresh'] ))) ) {
 			$this->api->get_site_data( true );
 			wp_safe_redirect( $this->settings_url() );
 		}
 
-		if ( isset( sanitize_text_field($_GET['reinstall'] )) ) {
+		if ( isset( sanitize_text_field(wp_unslash($_GET['reinstall']))) ) {
 			//cloud_uploads_install();
 			wp_safe_redirect( $this->settings_url() );
 		}
