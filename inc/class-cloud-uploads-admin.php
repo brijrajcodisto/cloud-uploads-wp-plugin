@@ -222,17 +222,17 @@ class Cloud_Uploads_Admin {
 			}
 		}
 
-		if ( isset( sanitize_text_field(wp_unslash($_GET['clear'])) ) ) {
+		if ( ! empty( sanitize_text_field(wp_unslash($_GET['clear'])) ) ) {
 			delete_site_option( 'cloud_uploads_files_scanned' );
 			wp_safe_redirect( $this->settings_url() );
 		}
 
-		if ( isset( sanitize_text_field(wp_unslash ($_GET['refresh'] ))) ) {
+		if ( ! empty( sanitize_text_field(wp_unslash ($_GET['refresh'] ))) ) {
 			$this->api->get_site_data( true );
 			wp_safe_redirect( $this->settings_url() );
 		}
 
-		if ( isset( sanitize_text_field(wp_unslash($_GET['reinstall']))) ) {
+		if ( ! empty( sanitize_text_field(wp_unslash($_GET['reinstall']))) ) {
 			//cloud_uploads_install();
 			wp_safe_redirect( $this->settings_url() );
 		}
