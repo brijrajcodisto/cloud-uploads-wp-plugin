@@ -5,7 +5,7 @@ Tested up to: 6.4.2
 Stable tag: 1.0
 Requires PHP: 5.6
 Contributors: brijrajs
-Tags: cloud storage, media cloud, encoding, offload, video, streaming, s3, google cloud storage, spaces, storage, cdn, cloud sync
+Tags: offload, media, cloud storage, remote storage, cdn
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
