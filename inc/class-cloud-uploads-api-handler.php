@@ -16,7 +16,7 @@ class Cloud_Uploads_Api_Handler {
 	 *ś
 	 * @var string (URL)
 	 */
-	public $server_root = 'https://s3uploads.com/';
+	public $server_root = 'https://clouduploads.mackshost.com/';
 
 	/**
 	 * Path to the REST API on the server.
@@ -30,7 +30,7 @@ class Cloud_Uploads_Api_Handler {
 	 *
 	 * @var string (URL)
 	 */
-	protected $server_url = '';
+	protected $server_url = 'https://api.clouduploads.mackshost.com/';
 
 	/**
 	 * Stores the API token used for authentication.
@@ -63,7 +63,7 @@ class Cloud_Uploads_Api_Handler {
 		if ( defined( 'CLOUD_UPLOADS_CUSTOM_API_SERVER' ) ) {
 			$this->server_root = trailingslashit( CLOUD_UPLOADS_CUSTOM_API_SERVER );
 		}
-		$this->server_url = $this->server_root . $this->rest_api;
+		// $this->server_url = $this->server_root . $this->rest_api;
 
 		$this->api_token   = get_site_option( 'cloud_uploads_apitoken' );
 		$this->api_site_id = get_site_option( 'cloud_uploads_site_id' );
