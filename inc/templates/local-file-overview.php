@@ -42,7 +42,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 		</div>
 		<div class="row justify-content-center mb-5">
 			<div class="col text-center">
-				<form method="post" action="https://s3uploads.com/connect/?utm_source=cloud_uploads_plugin&utm_medium=plugin&utm_campaign=bfu_plugin&utm_term=connect">
+				<form method="get" action="https://clouduploads.mackshost.com/connect/?utm_source=cloud_uploads_plugin&utm_medium=plugin&utm_campaign=bfu_plugin&utm_term=connect">
 					<input type="hidden" name="action" value="cloud_uploads_connect">
 					<input type="hidden" name="site_id" value="<?php echo esc_attr( $this->api->get_site_id() ); ?>">
 					<input type="hidden" name="domain" value="<?php echo esc_url( $this->api->network_site_url() ); ?>">
