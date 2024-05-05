@@ -16,21 +16,21 @@ class Cloud_Uploads_Api_Handler {
 	 *ś
 	 * @var string (URL)
 	 */
-	public $server_root = 'https://clouduploads.mackshost.com/';
+	public $server_root = 'https://api.clouduploads.mackshost.com/';
 
 	/**
 	 * Path to the REST API on the server.
 	 *
 	 * @var string (URL)
 	 */
-	protected $rest_api = 'api/v1/';
+	protected $rest_api = 'v1.0.0/';
 
 	/**
 	 * The complete REST API endpoint. Defined in constructor.
 	 *
 	 * @var string (URL)
 	 */
-	protected $server_url = 'https://api.clouduploads.mackshost.com/';
+	protected $server_url = '';
 
 	/**
 	 * Stores the API token used for authentication.
@@ -63,7 +63,7 @@ class Cloud_Uploads_Api_Handler {
 		if ( defined( 'CLOUD_UPLOADS_CUSTOM_API_SERVER' ) ) {
 			$this->server_root = trailingslashit( CLOUD_UPLOADS_CUSTOM_API_SERVER );
 		}
-		// $this->server_url = $this->server_root . $this->rest_api;
+		$this->server_url = $this->server_root . $this->rest_api;
 
 		$this->api_token   = get_site_option( 'cloud_uploads_apitoken' );
 		$this->api_site_id = get_site_option( 'cloud_uploads_site_id' );
