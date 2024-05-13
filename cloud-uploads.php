@@ -33,6 +33,8 @@ function cloud_uploads_init() {
 	include_once  dirname( __FILE__ ) . '/inc/class-cloud-uploads-filelist.php';
 	include_once  dirname( __FILE__ ) . '/inc/class-cloud-uploads-admin.php';
 	include_once  dirname( __FILE__ ) . '/inc/class-cloud-uploads-rewriter.php';
+	// include_once  dirname( __FILE__ ) . '/inc/class-cloud-uploads-image-editor-imagick.php';
+	
 	$admin = new Cloud_Uploads_Admin();
 	
 	$original_root_dirs = get_original_upload_dir_root();
@@ -40,8 +42,8 @@ function cloud_uploads_init() {
 	$cdn_url = get_s3_url();
 	new Cloud_Uploads_Rewriter( $original_root_dirs['baseurl'], $replacements, $cdn_url );
 
-	add_filter( 'wp_image_editors', 'filter_editors', 9 );
-	add_action( 'delete_attachment', 'delete_attachment_files' );
+	// add_filter( 'wp_image_editors', 'filter_editors', 9 );
+	// add_action( 'delete_attachment', 'delete_attachment_files' );
 	add_filter( 'wp_read_image_metadata', 'wp_filter_read_image_metadata', 10, 2 );
 	add_filter( 'wp_update_attachment_metadata', 'update_attachment_metadata', 10, 2 );
 	add_filter( 'wp_get_attachment_metadata', 'get_attachment_metadata' );
@@ -64,7 +66,7 @@ function cloud_uploads_init() {
 	 *
 	 * @param $post_id
 	 */
-	public function delete_attachment_files( $post_id ) {
+	function delete_attachment_files( $post_id ) {
 		$meta = wp_get_attachment_metadata( $post_id );
 		$file = get_attached_file( $post_id );
 
@@ -88,7 +90,7 @@ function cloud_uploads_init() {
 		//purge these from CDN cache
 		$this->api->purge( $to_purge );
 	}
-	
+
 /**
 	 * Return an error to display before trying to save newly uploaded media.
 	 *
@@ -130,7 +132,7 @@ function cloud_uploads_init() {
 			unset( $editors[ $position ] );
 		}
 
-		array_unshift( $editors, 'Infinite_Uploads_Image_Editor_Imagick' );
+		array_unshift( $editors, 'Cloud_Uploads_Image_Editor_Imagick' );
 
 		return $editors;
 	}
@@ -146,10 +148,10 @@ function cloud_uploads_init() {
 	 * @return array|bool
 	 */
 	function wp_filter_read_image_metadata( $meta, $file ) {
-		remove_filter( 'wp_read_image_metadata', [ $this, 'wp_filter_read_image_metadata' ], 10 );
-		$temp_file = $this->copy_image_from_s3( $file );
+		remove_filter( 'wp_read_image_metadata', 'wp_filter_read_image_metadata', 10 );
+		$temp_file = copy_image_from_s3( $file );
 		$meta      = wp_read_image_metadata( $temp_file );
-		add_filter( 'wp_read_image_metadata', [ $this, 'wp_filter_read_image_metadata' ], 10, 2 );
+		add_filter( 'wp_read_image_metadata', 'wp_filter_read_image_metadata', 10, 2 );
 		unlink( $temp_file );
 
 		return $meta;
@@ -216,7 +218,7 @@ function cloud_uploads_init() {
 	 */
 	function wp_filter_resource_hints( $hints, $relation_type ) {
 		if ( 'dns-prefetch' === $relation_type ) {
-			$hints[] = $this->get_s3_url();
+			$hints[] = get_s3_url();
 		}
 
 		return $hints;
@@ -415,13 +417,38 @@ function wpse_256351_upload( $file ) {
 	//$admin = new Cloud_Uploads_Admin();
 	$api = new Cloud_Uploads_Api_Handler();
 	$data = array("url"=>$file['url']);
-	$result = $api->call('cloud-uploads/file', $data, 'POST');
+	$result = $api->call('file', $data, 'POST');
 	$wp_upload_url = wp_upload_dir();
 	//error_log( print_r( $wp_upload_url['baseurl'], true ) );
 	//wp_upload_dir
 	$file['url'] = "https://test-s3.mackshost.com/".$wp_upload_url['subdir'].'/'.basename($file['url']);
 	//error_log( print_r( $file, true ) );
+	
   return $file;
+}
+
+add_action('wp_generate_attachment_metadata', 'process_images_on_raw_upload', 10, 2);
+function process_images_on_raw_upload($data, $attachment_id) {
+  //do magic here
+	//error_log( print_r( $attachment_id, true ) );
+	error_log( print_r( $data, true ) );
+	error_log( print_r( count($data['sizes']), true ) );
+	$sizes = array_values($data['sizes']);
+	$wp_upload_url = wp_upload_dir();
+	$api = new Cloud_Uploads_Api_Handler();
+
+	for($i = 0; $i < count($sizes); $i++) {
+		$file = $sizes[$i]['file'];
+		$data = array("url"=>$wp_upload_url['url'].'/'.$file);
+		$result = $api->call('file', $data, 'POST');
+		error_log( print_r( $file, true ) );
+	}
+	// $wp_upload_url = wp_upload_dir();
+	// error_log( print_r( $wp_upload_url, true ) );
+	// $api = new Cloud_Uploads_Api_Handler();
+	// $data = array("url"=>$wp_upload_url[url].'/'.file['url']);
+	// $result = $api->call('file', $data, 'POST');
+	// $wp_upload_url = wp_upload_dir();
 }
 
 // add_filter('wp_handle_upload_prefilter', 'custom_upload_filter' );
