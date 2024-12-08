@@ -258,7 +258,7 @@ class Cloud_Uploads_Api_Handler {
 				],
 			]
 		);
-		if($data['temp_token']) {
+		if(array_key_exists("temp_token",$data)) {
 			$options['headers']['Authorization'] = 'Bearer ' . $data['temp_token'];
 		} else {
 			if ( $this->has_token() ) {
