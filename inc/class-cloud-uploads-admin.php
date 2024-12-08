@@ -214,7 +214,7 @@ class Cloud_Uploads_Admin {
 		}
 
 		if ( ! empty( sanitize_text_field(wp_unslash($_GET['temp_token'] ))) ) {
-			$result = $this->api->authorize( sanitize_text_field(wp_unslash($_GET['site_id'])), sanitize_text_field(wp_unslash($_GET['temp_token'])));
+			$result = $this->api->authorize( sanitize_text_field(wp_unslash($_GET['temp_token'])));
 			if ( ! $result ) {
 				$this->auth_error = $this->api->api_error;
 			} else {
