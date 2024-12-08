@@ -16,7 +16,7 @@ class Cloud_Uploads_Api_Handler {
 	 *ś
 	 * @var string (URL)
 	 */
-	public $server_root = 'http://localhost:3000/';
+	public $server_root = 'http://127.0.0.1:3000/';
 
 	/**
 	 * Path to the REST API on the server.
