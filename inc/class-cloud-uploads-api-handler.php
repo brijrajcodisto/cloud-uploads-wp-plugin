@@ -184,11 +184,12 @@ class Cloud_Uploads_Api_Handler {
 	 *
 	 * @return bool
 	 */
-	public function authorize( $temp_token ) {
-		$result = $this->call( 'api-key', [ 'temp_token' => $temp_token ], 'POST' );
+	public function authorize( $site_id, $temp_token ) {
+		$result = $this->call( 'api-key', [ 'temp_token' => $temp_token, 'siteId' => $site_id ], 'POST' );
+		$this->set_site_id( $site_id );
 		if ( $result ) {
 			$this->set_token( $result->apiKey );
-			$this->set_site_id( $result->siteIid );
+			//$this->set_site_id( $result->siteIid );
 
 			return $this->get_site_data( true );
 		}
