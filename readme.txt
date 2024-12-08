@@ -2,7 +2,7 @@
 
 Requires at least: 5.3
 Tested up to: 6.4.2
-Stable tag: 1.0
+Stable tag: 1.0.0
 Requires PHP: 5.6
 Contributors: brijrajs
 Tags: offload, media, cloud storage, remote storage, cdn

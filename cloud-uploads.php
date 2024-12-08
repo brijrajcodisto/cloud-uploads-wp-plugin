@@ -2,7 +2,7 @@
 /*
  * Plugin Name: Cloud Uploads Pro
  * Description: Migrate and store your wordpress upload files remotely on cloud storage along with cdn for fast delivery.
- * Version: 1.0
+ * Version: 1.0.0
  * Author: Brij Raj Singh
  * Text Domain: cloud-uploads-pro
  * Requires at least: 5.3
