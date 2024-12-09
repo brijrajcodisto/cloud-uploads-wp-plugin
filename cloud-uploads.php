@@ -417,7 +417,7 @@ function wpse_256351_upload( $file ) {
 	//$admin = new Cloud_Uploads_Admin();
 	$api = new Cloud_Uploads_Api_Handler();
 	$data = array("url"=>$file['url']);
-	$result = $api->call('file', $data, 'POST');
+	$result = $api->call('api/file', $data, 'POST');
 	$wp_upload_url = wp_upload_dir();
 	//error_log( print_r( $wp_upload_url['baseurl'], true ) );
 	//wp_upload_dir
@@ -440,7 +440,7 @@ function process_images_on_raw_upload($data, $attachment_id) {
 	for($i = 0; $i < count($sizes); $i++) {
 		$file = $sizes[$i]['file'];
 		$data = array("url"=>$wp_upload_url['url'].'/'.$file);
-		$result = $api->call('file', $data, 'POST');
+		$result = $api->call('api/file', $data, 'POST');
 		error_log( print_r( $file, true ) );
 	}
 	// $wp_upload_url = wp_upload_dir();

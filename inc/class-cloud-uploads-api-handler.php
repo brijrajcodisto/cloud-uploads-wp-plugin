@@ -165,7 +165,7 @@ class Cloud_Uploads_Api_Handler {
 		}
 
 
-		$result = $this->call( "site/" . $this->get_site_id(), [], 'GET' );
+		$result = $this->call( "api/site/" . $this->get_site_id(), [], 'GET' );
 		if ( $result ) {
 			$result->refreshed = time();
 			//json_encode to prevent object injections
@@ -185,8 +185,8 @@ class Cloud_Uploads_Api_Handler {
 	 * @return bool
 	 */
 	public function authorize( $site_id, $temp_token ) {
-		$result = $this->call( 'api-key', [ 'temp_token' => $temp_token, 'siteId' => $site_id ], 'POST' );
-		$this->set_site_id( $site_id );
+		this->set_site_id( $site_id );
+		$result = $this->call( 'api-key', [ 'temp_token' => $temp_token ], 'POST' );
 		if ( $result ) {
 			$this->set_token( $result->apiKey );
 			//$this->set_site_id( $result->siteIid );
