@@ -209,10 +209,10 @@ class Cloud_Uploads_Admin {
 	 * Checks for temp_token in url and processes auth if present.
 	 */
 	function intercept_auth() {
-		error_log(
-			sprintf('hare krishna intercept auth'),
-			0
-		);
+		// error_log(
+		// 	sprintf('hare krishna intercept auth'),
+		// 	0
+		// );
 		if ( ! current_user_can( $this->capability ) ) {
 			wp_die( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
 		}
