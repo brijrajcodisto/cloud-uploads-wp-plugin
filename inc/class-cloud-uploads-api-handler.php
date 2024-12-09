@@ -165,7 +165,7 @@ class Cloud_Uploads_Api_Handler {
 		}
 
 
-		$result = $this->call( "api/site/" . $this->get_site_id(), [], 'GET' );
+		$result = $this->call( "api/site", [], 'GET' );
 		if ( $result ) {
 			$result->refreshed = time();
 			//json_encode to prevent object injections
