@@ -99,7 +99,7 @@ function cloud_uploads_init() {
 	 * @return array
 	 */
 	function block_uploads( $file ) {
-		$file['error'] = esc_html__( "Files can't be uploaded due to a billing issue with your Infinite Uploads account.", 'infinite-uploads' );
+		$file['error'] = esc_html__( "Files can't be uploaded due to a billing issue with your Infinite Uploads account.", 'cloud-uploads' );
 
 		return $file;
 	}
@@ -118,7 +118,7 @@ function cloud_uploads_init() {
 		if ( preg_match( '%/wp/v2/media/\d+/edit%', $request->get_route() ) ) {
 			$result = new WP_Error(
 				'rest_cant_upload',
-				__( "Files can't be uploaded due to a billing issue with your Infinite Uploads account.", 'infinite-uploads' ),
+				__( "Files can't be uploaded due to a billing issue with your Cloud Uploads account.", 'cloud-uploads' ),
 				[ 'status' => 403 ]
 			);
 		}

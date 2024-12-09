@@ -287,7 +287,7 @@ class Cloud_Uploads_Admin {
 			<?php
 				if ($this->api->has_token() && $api_data ) {
 					if ( ! $api_data->stats->site->files ) {
-						$synced           = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size FROM `{$wpdb->base_prefix}infinite_uploads_files` WHERE synced = 1" );
+						$synced           = $wpdb->get_row( "SELECT count(*) AS files, SUM(`size`) as size FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 1" );
 						$cloud_size       = $synced->size;
 						$cloud_files      = $synced->files;
 						$cloud_total_size = $api_data->stats->cloud->storage + $synced->size;
