@@ -547,12 +547,14 @@ class Cloud_Uploads_Admin {
 				$filecount = sizeof($to_sync_full);
 				error_log( print_r( 'File count is ', true ) );
 				error_log( print_r( $filecount, true ) );
-				// for($i = 0; $i < count($sizes); $i++) {
-				// 	$file = $sizes[$i]['file'];
-				// 	$data = array("url"=>$wp_upload_url['url'].'/'.$file);
-				// 	$result = $api->call('api/file', $data, 'POST');
-				// 	error_log( print_r( $file, true ) );
-				// }
+				
+				for($i = 0; $i < count($sizes); $i++) {
+					$file = $to_sync_full[$i];
+					$data = array("url"=>$wp_upload_url['url'].'/'.$file);
+					//$result = $api->call('api/file', $data, 'POST');
+					error_log( print_r( $file, true ) );
+					error_log( print_r( $data, true ) );
+				}
 			} catch ( Exception $e ) {
 				$this->sync_debug_log( "Transfer sync exception: " . $e->__toString() );
 				$errors[] = sprintf( esc_html__( 'Error uploading %s. Queued for retry.', 'cloud-uploads' ), $file );
@@ -564,14 +566,34 @@ class Cloud_Uploads_Admin {
 			if ( $to_sync ) {
 				$this->sync_debug_log( "Continuing multipart upload: " . $to_sync->file );
 
+				$to_sync_full = [];
+				$to_sync_size = 0;
+				$to_sync_sql  = [];
+				foreach ( $to_sync as $file ) {
+					$to_sync_size += $file->size;
+					if ( count( $to_sync_full ) && $to_sync_size > CLOUD_UPLOADS_SYNC_MAX_BYTES ) { //upload at minimum one file even if it's huuuge
+						break;
+					}
+					$to_sync_full[] = $path['basedir'] . $file->file;
+					$to_sync_sql[]  = esc_sql( $file->file );
+				}
 				//preset the error count in case request times out. Successful sync will clear error count.
 				$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET errors = ( errors + 1 ) WHERE file = %s", $to_sync->file ) );
 				$to_sync->errors ++; //increment error result so it's accurate
 
 				try {
 					
-					$abc = 'hare krishna';
-					
+					$api = new Cloud_Uploads_Api_Handler();
+					$filecount = sizeof($to_sync_full);
+					error_log( print_r( 'Retrying File count is ', true ) );
+					error_log( print_r( $filecount, true ) );
+					for($i = 0; $i < $filecount; $i++) {
+						$file = $to_sync_full[$i];
+						$data = array("url"=>$wp_upload_url['url'].'/'.$file);
+						//$result = $api->call('api/file', $data, 'POST');
+						error_log( print_r( $file, true ) );
+						error_log( print_r( $data, true ) );
+					}
 
 				} catch ( Exception $e ) {
 					$this->sync_debug_log( "Get multipart UploadState exception: " . $e->__toString() );
