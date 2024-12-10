@@ -481,9 +481,9 @@ class Cloud_Uploads_Admin {
 
   public function ajax_remote_filelist() {
 	global $wpdb;
-	if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( $_POST['nonce'], 'cloud_uploads_sync' ) ) {
-		wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again....', 'cloud-uploads' ) );
-	}
+	// if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( $_POST['nonce'], 'cloud_uploads_sync' ) ) {
+	// 	wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again....', 'cloud-uploads' ) );
+	// }
 
 	try {
 		$nonce = wp_create_nonce( 'cloud_uploads_scan' );
