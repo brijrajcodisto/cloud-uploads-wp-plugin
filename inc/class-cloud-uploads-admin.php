@@ -484,6 +484,10 @@ class Cloud_Uploads_Admin {
 
 	try {
 		$nonce = wp_create_nonce( 'cloud_uploads_scan' );
+		$req_count  = $file_count = 0;
+		$is_done    = true;
+		$next_token = null;
+		$timer = timer_stop();
 		$data  = compact( 'file_count', 'req_count', 'is_done', 'next_token', 'timer', 'nonce' );
 		$stats = $this->get_sync_stats();
 		wp_send_json_success( $data );
