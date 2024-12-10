@@ -539,7 +539,7 @@ class Cloud_Uploads_Admin {
 					break;
 				}
 				$to_sync_full[] = $path['basedir'] . $file->file;
-				$to_sync_files = $file->file;
+				$to_sync_files[] = $file->file;
 				$to_sync_sql[]  = esc_sql( $file->file );
 			}
 			//preset the error count in case request times out. Successful sync will clear error count.
@@ -579,7 +579,7 @@ class Cloud_Uploads_Admin {
 						break;
 					}
 					$to_sync_full[] = $path['basedir'] . $file->file;
-					$to_sync_files = $file->file;
+					$to_sync_files[] = $file->file;
 					$to_sync_sql[]  = esc_sql( $file->file );
 				}
 				//preset the error count in case request times out. Successful sync will clear error count.
