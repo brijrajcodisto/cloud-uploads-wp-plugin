@@ -530,6 +530,7 @@ class Cloud_Uploads_Admin {
 		if ( $to_sync ) {
 			//build full paths
 			$to_sync_full = [];
+			$to_sync_files = [];
 			$to_sync_size = 0;
 			$to_sync_sql  = [];
 			foreach ( $to_sync as $file ) {
@@ -538,6 +539,7 @@ class Cloud_Uploads_Admin {
 					break;
 				}
 				$to_sync_full[] = $path['basedir'] . $file->file;
+				$to_sync_files = $file->file;
 				$to_sync_sql[]  = esc_sql( $file->file );
 			}
 			//preset the error count in case request times out. Successful sync will clear error count.
@@ -545,12 +547,12 @@ class Cloud_Uploads_Admin {
 
 			try {
 				$api = new Cloud_Uploads_Api_Handler();
-				$filecount = sizeof($to_sync_full);
+				$filecount = sizeof($to_sync_files);
 				error_log( print_r( 'File count is ', true ) );
 				error_log( print_r( $filecount, true ) );
 				
 				for($i = 0; $i < $filecount; $i++) {
-					$file = $to_sync_full[$i];
+					$file = $to_sync_files[$i];
 					$data = array("url"=>$wp_upload_url['url'].'/'.$file);
 					//$result = $api->call('api/file', $data, 'POST');
 					error_log( print_r( $file, true ) );
@@ -568,6 +570,7 @@ class Cloud_Uploads_Admin {
 				$this->sync_debug_log( "Continuing multipart upload: " . $to_sync->file );
 
 				$to_sync_full = [];
+				$to_sync_files = [];
 				$to_sync_size = 0;
 				$to_sync_sql  = [];
 				foreach ( $to_sync as $file ) {
@@ -576,6 +579,7 @@ class Cloud_Uploads_Admin {
 						break;
 					}
 					$to_sync_full[] = $path['basedir'] . $file->file;
+					$to_sync_files = $file->file;
 					$to_sync_sql[]  = esc_sql( $file->file );
 				}
 				//preset the error count in case request times out. Successful sync will clear error count.
@@ -585,11 +589,11 @@ class Cloud_Uploads_Admin {
 				try {
 					
 					$api = new Cloud_Uploads_Api_Handler();
-					$filecount = sizeof($to_sync_full);
+					$filecount = sizeof($to_sync_files);
 					error_log( print_r( 'Retrying File count is ', true ) );
 					error_log( print_r( $filecount, true ) );
 					for($i = 0; $i < $filecount; $i++) {
-						$file = $to_sync_full[$i];
+						$file = $to_sync_files[$i];
 						$data = array("url"=>$wp_upload_url['url'].'/'.$file);
 						//$result = $api->call('api/file', $data, 'POST');
 						error_log( print_r( $file, true ) );
