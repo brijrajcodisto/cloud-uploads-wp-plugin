@@ -48,7 +48,28 @@ function cloud_uploads_init() {
 	add_filter( 'wp_update_attachment_metadata', 'update_attachment_metadata', 10, 2 );
 	add_filter( 'wp_get_attachment_metadata', 'get_attachment_metadata' );
 	add_filter( 'wp_resource_hints', 'wp_filter_resource_hints', 10, 2 );
-				
+	
+	if ( ! defined( 'INFINITE_UPLOADS_SYNC_MAX_BYTES' ) ) {
+		define( 'INFINITE_UPLOADS_SYNC_MAX_BYTES', MB_IN_BYTES * 5 );
+	}
+	//This is the maximum to transfer in parallel within the INFINITE_UPLOADS_SYNC_MAX_BYTES size.
+	if ( ! defined( 'INFINITE_UPLOADS_SYNC_CONCURRENCY' ) ) {
+		define( 'INFINITE_UPLOADS_SYNC_CONCURRENCY', 15 );
+	}
+	if ( ! defined( 'INFINITE_UPLOADS_SYNC_MULTIPART_CONCURRENCY' ) ) {
+		define( 'INFINITE_UPLOADS_SYNC_MULTIPART_CONCURRENCY', 5 );
+	}
+	if ( ! defined( 'INFINITE_UPLOADS_SYNC_PER_LOOP' ) ) {
+		define( 'INFINITE_UPLOADS_SYNC_PER_LOOP', 1000 );
+	}
+	if ( ! defined( 'INFINITE_UPLOADS_HTTP_CACHE_CONTROL' ) ) {
+		define( 'INFINITE_UPLOADS_HTTP_CACHE_CONTROL', YEAR_IN_SECONDS );
+	}
+	//we cache the last object uploaded to cloud in memory so it can be processed without downloading again.
+	if ( ! defined( 'INFINITE_UPLOADS_STREAM_CACHE_MAX_BYTES' ) ) {
+		define( 'INFINITE_UPLOADS_STREAM_CACHE_MAX_BYTES', MB_IN_BYTES * 32 );
+	}
+	
 	cloud_uploads_upgrade();
 }
 
