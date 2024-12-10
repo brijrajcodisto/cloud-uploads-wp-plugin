@@ -553,7 +553,7 @@ class Cloud_Uploads_Admin {
 				
 				for($i = 0; $i < $filecount; $i++) {
 					$file = $to_sync_files[$i];
-					$data = array("url"=>$wp_upload_url['url'].$file);
+					$data = array("url"=>$wp_upload_url['url'].basename($file));
 					//$result = $api->call('api/file', $data, 'POST');
 					error_log( print_r( $file, true ) );
 					error_log( print_r( $data, true ) );
@@ -594,7 +594,7 @@ class Cloud_Uploads_Admin {
 					error_log( print_r( $filecount, true ) );
 					for($i = 0; $i < $filecount; $i++) {
 						$file = $to_sync_files[$i];
-						$data = array("url"=>$wp_upload_url['url'].$file);
+						$data = array("url"=>$wp_upload_url['url'].basename($file));
 						//$result = $api->call('api/file', $data, 'POST');
 						error_log( print_r( $file, true ) );
 						error_log( print_r( $data, true ) );
