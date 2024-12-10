@@ -320,6 +320,10 @@ class Cloud_Uploads_Admin {
 						require_once( dirname( __FILE__ ) . '/templates/welcome.php' );
 					}
 				}
+				require_once( dirname( __FILE__ ) . '/templates/modal-remote-scan.php' );
+				require_once( dirname( __FILE__ ) . '/templates/modal-scan.php' );
+				require_once( dirname( __FILE__ ) . '/templates/modal-delete.php' );
+				require_once( dirname( __FILE__ ) . '/templates/modal-download.php' );
 				require_once( dirname( __FILE__ ) . '/templates/footer.php' );
 				?>
 
