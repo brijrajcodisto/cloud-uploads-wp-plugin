@@ -556,7 +556,7 @@ class Cloud_Uploads_Admin {
 					$data = array("url"=>$wp_upload_url['url'].basename($file));
 					$result = $api->call('api/file', $data, 'POST');
 					error_log( print_r( $file, true ) );
-					//error_log( print_r( $data, true ) );
+					error_log( print_r( $data, true ) );
 				}
 			} catch ( Exception $e ) {
 				$this->sync_debug_log( "Transfer sync exception: " . $e->__toString() );
@@ -595,7 +595,7 @@ class Cloud_Uploads_Admin {
 						$data = array("url"=>$wp_upload_url['url'].basename($file));
 						$result = $api->call('api/file', $data, 'POST');
 						error_log( print_r( $file, true ) );
-						//error_log( print_r( $data, true ) );
+						error_log( print_r( $data, true ) );
 					}
 
 				} catch ( Exception $e ) {
