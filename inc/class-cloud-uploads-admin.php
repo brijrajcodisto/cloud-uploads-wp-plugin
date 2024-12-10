@@ -544,6 +544,15 @@ class Cloud_Uploads_Admin {
 
 			try {
 				$api = new Cloud_Uploads_Api_Handler();
+				$filecount = sizeof($to_sync_full);
+				error_log( print_r( 'File count is ', true ) );
+				error_log( print_r( $filecount, true ) );
+				// for($i = 0; $i < count($sizes); $i++) {
+				// 	$file = $sizes[$i]['file'];
+				// 	$data = array("url"=>$wp_upload_url['url'].'/'.$file);
+				// 	$result = $api->call('api/file', $data, 'POST');
+				// 	error_log( print_r( $file, true ) );
+				// }
 			} catch ( Exception $e ) {
 				$this->sync_debug_log( "Transfer sync exception: " . $e->__toString() );
 				$errors[] = sprintf( esc_html__( 'Error uploading %s. Queued for retry.', 'cloud-uploads' ), $file );
