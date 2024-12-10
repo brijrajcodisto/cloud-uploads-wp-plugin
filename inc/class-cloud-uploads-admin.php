@@ -490,6 +490,9 @@ class Cloud_Uploads_Admin {
 		$timer = timer_stop();
 		$data  = compact( 'file_count', 'req_count', 'is_done', 'next_token', 'timer', 'nonce' );
 		$stats = $this->get_sync_stats();
+		if ( $stats ) {
+			$data = array_merge( $data, $stats );
+		}
 		wp_send_json_success( $data );
 	} catch ( Exception $e ) {
 		wp_send_json_error( $e->getMessage() );
