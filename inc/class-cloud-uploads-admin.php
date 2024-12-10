@@ -214,7 +214,7 @@ class Cloud_Uploads_Admin {
 		// 	0
 		// );
 		if ( ! current_user_can( $this->capability ) ) {
-			wp_die( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
+			wp_die( esc_html__( 'Permissions Error: Please refresh the page and try again..', 'cloud-uploads' ) );
 		}
 		if(isset($_GET['temp_token'])) {
 			if ( ! empty( sanitize_text_field(wp_unslash($_GET['temp_token'] ))) ) {
@@ -450,7 +450,7 @@ class Cloud_Uploads_Admin {
 
 		// check caps
 		if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( sanitize_text_field(wp_unslash($_POST['nonce'])), 'cloud_uploads_scan' ) ) {
-			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
+			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again...', 'cloud-uploads' ) );
 		}
 
 		$path = $this->get_original_upload_dir_root();
@@ -482,7 +482,7 @@ class Cloud_Uploads_Admin {
   public function ajax_remote_filelist() {
 	global $wpdb;
 	if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( $_POST['nonce'], 'cloud_uploads_sync' ) ) {
-		wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
+		wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again....', 'cloud-uploads' ) );
 	}
 
 	try {
@@ -506,7 +506,7 @@ class Cloud_Uploads_Admin {
 	global $wpdb;
 
 	if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( $_POST['nonce'], 'cloud_uploads_sync' ) ) {
-		wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
+		wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.....', 'cloud-uploads' ) );
 	}
 
 	$progress = get_site_option( 'cloud_uploads_files_scanned' );
