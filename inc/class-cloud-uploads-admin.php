@@ -548,7 +548,7 @@ class Cloud_Uploads_Admin {
 				error_log( print_r( 'File count is ', true ) );
 				error_log( print_r( $filecount, true ) );
 				
-				for($i = 0; $i < count($sizes); $i++) {
+				for($i = 0; $i < $filecount; $i++) {
 					$file = $to_sync_full[$i];
 					$data = array("url"=>$wp_upload_url['url'].'/'.$file);
 					//$result = $api->call('api/file', $data, 'POST');
@@ -557,7 +557,7 @@ class Cloud_Uploads_Admin {
 				}
 			} catch ( Exception $e ) {
 				$this->sync_debug_log( "Transfer sync exception: " . $e->__toString() );
-				$errors[] = sprintf( esc_html__( 'Error uploading %s. Queued for retry.', 'cloud-uploads' ), $file );
+				$errors[] = sprintf( esc_html__( 'Error uploading %s. Queued for retry.', 'cloud_uploads' ), $file );
 			}
 
 		} else { // we are done with transfer manager, continue any unfinished multipart uploads one by one
@@ -598,9 +598,9 @@ class Cloud_Uploads_Admin {
 				} catch ( Exception $e ) {
 					$this->sync_debug_log( "Get multipart UploadState exception: " . $e->__toString() );
 					if ( ( $to_sync->errors ) >= 3 ) {
-						$errors[] = sprintf( esc_html__( 'Error uploading %s. Retries exceeded.', 'cloud-uploads' ), $to_sync->file );
+						$errors[] = sprintf( esc_html__( 'Error uploading %s. Retries exceeded.', 'cloud_uploads' ), $to_sync->file );
 					} else {
-						$errors[] = sprintf( esc_html__( 'Error uploading %s. Queued for retry.', 'cloud-uploads' ), $to_sync->file );
+						$errors[] = sprintf( esc_html__( 'Error uploading %s. Queued for retry.', 'cloud_uploads' ), $to_sync->file );
 					}
 				}
 
