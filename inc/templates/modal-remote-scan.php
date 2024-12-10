@@ -24,7 +24,7 @@
 								class="h5" <?php echo ! $stats['cloud_files'] ? 'id="cup-scan-remote-progress"' : ''; ?>><?php printf( __( '<span id="cup-scan-remote-storage">%s</span> / <span id="cup-scan-remote-files">%s</span> Files Synced', 'cloud-uploads' ), $stats['cloud_size'], $stats['cloud_files'] ); ?></span>
 						</div>
 					</div>
-					<?php if ( ! get_site_option( 'cup_enabled' ) ) { ?>
+					<?php if ( ! get_site_option( 'cloud_uploads_enabled' ) ) { ?>
 						<div class="row justify-content-center mb-4">
 							<div class="col text-center">
 								<img src="<?php echo esc_url( plugins_url( '/assets/img/progress-bar-3.svg', dirname( __FILE__ ) ) ); ?>" alt="Progress steps bar" height="19" width="110"/>

@@ -479,8 +479,17 @@ class Cloud_Uploads_Admin {
 		wp_send_json_success( $data );
   }
 
-  function ajax_remote_filelist() {
+  public function ajax_remote_filelist() {
+	global $wpdb;
 
+	try {
+		$nonce = wp_create_nonce( 'cloud_uploads_scan' );
+		$data  = compact( 'file_count', 'req_count', 'is_done', 'next_token', 'timer', 'nonce' );
+		$stats = $this->get_sync_stats();
+		wp_send_json_success( $data );
+	} catch ( Exception $e ) {
+		wp_send_json_error( $e->getMessage() );
+	}
   }
 
   function ajax_sync() {
