@@ -216,13 +216,14 @@ class Cloud_Uploads_Admin {
 		if ( ! current_user_can( $this->capability ) ) {
 			wp_die( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
 		}
-
-		if ( ! empty( sanitize_text_field(wp_unslash($_GET['temp_token'] ))) ) {
-			$result = $this->api->authorize( sanitize_text_field(wp_unslash($_GET['site_id'])), sanitize_text_field(wp_unslash($_GET['temp_token'])));
-			if ( ! $result ) {
-				$this->auth_error = $this->api->api_error;
-			} else {
-				wp_safe_redirect( $this->settings_url() );
+		if(isset($_GET['temp_token'])) {
+			if ( ! empty( sanitize_text_field(wp_unslash($_GET['temp_token'] ))) ) {
+				$result = $this->api->authorize( sanitize_text_field(wp_unslash($_GET['site_id'])), sanitize_text_field(wp_unslash($_GET['temp_token'])));
+				if ( ! $result ) {
+					$this->auth_error = $this->api->api_error;
+				} else {
+					wp_safe_redirect( $this->settings_url() );
+				}
 			}
 		}
 
