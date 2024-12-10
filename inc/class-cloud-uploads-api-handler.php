@@ -215,7 +215,6 @@ class Cloud_Uploads_Api_Handler {
 		}
 
 		return false;
-	};
 	}
 
 	/**
