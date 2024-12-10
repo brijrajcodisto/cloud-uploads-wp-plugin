@@ -481,6 +481,9 @@ class Cloud_Uploads_Admin {
 
   public function ajax_remote_filelist() {
 	global $wpdb;
+	if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( $_POST['nonce'], 'cloud_uploads_sync' ) ) {
+		wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
+	}
 
 	try {
 		$nonce = wp_create_nonce( 'cloud_uploads_scan' );
@@ -500,8 +503,97 @@ class Cloud_Uploads_Admin {
   }
 
   function ajax_sync() {
+	global $wpdb;
 
-  }
+	if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( $_POST['nonce'], 'cloud_uploads_sync' ) ) {
+		wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
+	}
+
+	$progress = get_site_option( 'cloud_uploads_files_scanned' );
+	if ( ! $progress['sync_started'] ) {
+		$progress['sync_started'] = time();
+		update_site_option( 'cloud_uploads_files_scanned', $progress );
+	}
+
+	//this loop has a parallel status check, so we make the timeout 2/3 of max execution time.
+	$this->ajax_timelimit = max( 20, floor( ini_get( 'max_execution_time' ) * .6666 ) );
+	$this->sync_debug_log( "Ajax time limit: " . $this->ajax_timelimit );
+	$uploaded = 0;
+	$errors   = [];
+	$break    = false;
+	$is_done  = false;
+	$path     = $this->get_original_upload_dir_root();
+	//$s3       = $this->s3();
+	while ( ! $break ) {
+		$to_sync = $wpdb->get_results( $wpdb->prepare( "SELECT file, size FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 0 AND errors < 3 AND transfer_status IS NULL ORDER BY errors ASC, file ASC LIMIT %d", CLOUD_UPLOADS_SYNC_PER_LOOP ) );
+		if ( $to_sync ) {
+			//build full paths
+			$to_sync_full = [];
+			$to_sync_size = 0;
+			$to_sync_sql  = [];
+			foreach ( $to_sync as $file ) {
+				$to_sync_size += $file->size;
+				if ( count( $to_sync_full ) && $to_sync_size > CLOUD_UPLOADS_SYNC_MAX_BYTES ) { //upload at minimum one file even if it's huuuge
+					break;
+				}
+				$to_sync_full[] = $path['basedir'] . $file->file;
+				$to_sync_sql[]  = esc_sql( $file->file );
+			}
+			//preset the error count in case request times out. Successful sync will clear error count.
+			$wpdb->query( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET errors = ( errors + 1 ) WHERE file IN ('" . implode( "','", $to_sync_sql ) . "')" );
+
+			try {
+				$api = new Cloud_Uploads_Api_Handler();
+			} catch ( Exception $e ) {
+				$this->sync_debug_log( "Transfer sync exception: " . $e->__toString() );
+				$errors[] = sprintf( esc_html__( 'Error uploading %s. Queued for retry.', 'cloud-uploads' ), $file );
+			}
+
+		} else { // we are done with transfer manager, continue any unfinished multipart uploads one by one
+
+			$to_sync = $wpdb->get_row( "SELECT file, size, errors, transfer_status as upload_id FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 0 AND errors < 3 AND transfer_status IS NOT NULL ORDER BY errors ASC, file ASC LIMIT 1" );
+			if ( $to_sync ) {
+				$this->sync_debug_log( "Continuing multipart upload: " . $to_sync->file );
+
+				//preset the error count in case request times out. Successful sync will clear error count.
+				$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET errors = ( errors + 1 ) WHERE file = %s", $to_sync->file ) );
+				$to_sync->errors ++; //increment error result so it's accurate
+
+				try {
+					
+					$abc = 'hare krishna';
+					
+
+				} catch ( Exception $e ) {
+					$this->sync_debug_log( "Get multipart UploadState exception: " . $e->__toString() );
+					if ( ( $to_sync->errors ) >= 3 ) {
+						$errors[] = sprintf( esc_html__( 'Error uploading %s. Retries exceeded.', 'cloud-uploads' ), $to_sync->file );
+					} else {
+						$errors[] = sprintf( esc_html__( 'Error uploading %s. Queued for retry.', 'cloud-uploads' ), $to_sync->file );
+					}
+				}
+
+			} else {
+				$is_done = true;
+			}
+		}
+
+		if ( $is_done || timer_stop() >= $this->ajax_timelimit ) {
+			$break            = true;
+			$permanent_errors = false;
+
+			if ( $is_done ) {
+				$permanent_errors          = (int) $wpdb->get_var( "SELECT count(*) FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 0 AND errors >= 3" );
+				$progress                  = get_site_option( 'cloud_uploads_files_scanned' );
+				$progress['sync_finished'] = time();
+				update_site_option( 'cloud_uploads_files_scanned', $progress );
+			}
+
+			$nonce = wp_create_nonce( 'cloud_uploads_sync' );
+			wp_send_json_success( array_merge( compact( 'uploaded', 'is_done', 'errors', 'permanent_errors', 'nonce' ), $this->get_sync_stats() ) );
+		}
+	}
+}
 
   function ajax_sync_errors() {
 
