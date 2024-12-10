@@ -523,6 +523,7 @@ class Cloud_Uploads_Admin {
 	$break    = false;
 	$is_done  = false;
 	$path     = $this->get_original_upload_dir_root();
+	$wp_upload_url = wp_upload_dir();
 	//$s3       = $this->s3();
 	while ( ! $break ) {
 		$to_sync = $wpdb->get_results( $wpdb->prepare( "SELECT file, size FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 0 AND errors < 3 AND transfer_status IS NULL ORDER BY errors ASC, file ASC LIMIT %d", CLOUD_UPLOADS_SYNC_PER_LOOP ) );
