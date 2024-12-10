@@ -14,14 +14,14 @@ class Cloud_Uploads_Api_Handler {
 	 *ś
 	 * @var string (URL)
 	 */
-	public $server_root = 'https://api.clouduploads.mackshost.com/';
+	public $server_root = 'http://192.168.1.236:3000/';
 
 	/**
 	 * Path to the REST API on the server.
 	 *
 	 * @var string (URL)
 	 */
-	protected $rest_api = 'api/cloud-uploads/';
+	protected $rest_api = 'v1.0.0/';
 
 	/**
 	 * The complete REST API endpoint. Defined in constructor.
@@ -131,7 +131,7 @@ class Cloud_Uploads_Api_Handler {
 	 */
 	public function get_site_cloud_files() {
 		//$this->api_site_id;
-		$site_files = $this->call('file', [], 'GET');
+		$site_files = $this->call('api/file', [], 'GET');
 		return $site_files;
 	}
 
@@ -142,7 +142,7 @@ class Cloud_Uploads_Api_Handler {
 	 */
 	public function sync_site_cloud_files() {
 		//$this->api_site_id;
-		$site_files = $this->call('file', [], 'POST');
+		$site_files = $this->call('api/file', [], 'POST');
 		return $site_files;
 	}
 
@@ -185,7 +185,7 @@ class Cloud_Uploads_Api_Handler {
 		}
 
 
-		$result = $this->call( "site", [], 'GET' );
+		$result = $this->call( "api/site", [], 'GET' );
 		if ( $result ) {
 			$result->refreshed = time();
 			//json_encode to prevent object injections
@@ -204,18 +204,18 @@ class Cloud_Uploads_Api_Handler {
 	 *
 	 * @return bool
 	 */
-	public function authorize( $temp_token ) {
-		//echo 'auth function callled';
-		$this->set_token( $temp_token );
-		$result = $this->call( 'token', [ 'temp_token' => $temp_token ], 'GET' );
+	public function authorize( $site_id, $temp_token ) {
+		$this->set_site_id( $site_id );
+		$result = $this->call( 'api-key', [ 'temp_token' => $temp_token, 'siteId' => $site_id ], 'POST' );
 		if ( $result ) {
-			$this->set_token( $result->api_token );
-			$this->set_site_id( $result->site_id );
+			$this->set_token( $result->apiKey );
+			//$this->set_site_id( $result->siteIid );
 
 			return $this->get_site_data( true );
 		}
 
 		return false;
+	};
 	}
 
 	/**
@@ -280,8 +280,12 @@ class Cloud_Uploads_Api_Handler {
 			]
 		);
 
-		if ( $this->has_token() ) {
-			$options['headers']['token'] = $this->get_token();
+		if(array_key_exists("temp_token",$data)) {
+			$options['headers']['Authorization'] = 'Bearer ' . $data['temp_token'];
+		} else {
+			if ( $this->has_token() ) {
+				$options['headers']['apikey'] = $this->get_token();
+			}
 		}
 
 		if ( 'GET' == $method ) {
