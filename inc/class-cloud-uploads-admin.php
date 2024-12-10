@@ -524,6 +524,7 @@ class Cloud_Uploads_Admin {
 	$is_done  = false;
 	$path     = $this->get_original_upload_dir_root();
 	$wp_upload_url = wp_upload_dir();
+	$api = new Cloud_Uploads_Api_Handler();
 	//$s3       = $this->s3();
 	while ( ! $break ) {
 		$to_sync = $wpdb->get_results( $wpdb->prepare( "SELECT file, size FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 0 AND errors < 3 AND transfer_status IS NULL ORDER BY errors ASC, file ASC LIMIT %d", CLOUD_UPLOADS_SYNC_PER_LOOP ) );
@@ -546,7 +547,6 @@ class Cloud_Uploads_Admin {
 			$wpdb->query( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET errors = ( errors + 1 ) WHERE file IN ('" . implode( "','", $to_sync_sql ) . "')" );
 
 			try {
-				$api = new Cloud_Uploads_Api_Handler();
 				$filecount = sizeof($to_sync_files);
 				error_log( print_r( 'File count is ', true ) );
 				error_log( print_r( $filecount, true ) );
@@ -554,9 +554,9 @@ class Cloud_Uploads_Admin {
 				for($i = 0; $i < $filecount; $i++) {
 					$file = $to_sync_files[$i];
 					$data = array("url"=>$wp_upload_url['url'].basename($file));
-					//$result = $api->call('api/file', $data, 'POST');
+					$result = $api->call('api/file', $data, 'POST');
 					error_log( print_r( $file, true ) );
-					error_log( print_r( $data, true ) );
+					//error_log( print_r( $data, true ) );
 				}
 			} catch ( Exception $e ) {
 				$this->sync_debug_log( "Transfer sync exception: " . $e->__toString() );
@@ -587,17 +587,15 @@ class Cloud_Uploads_Admin {
 				$to_sync->errors ++; //increment error result so it's accurate
 
 				try {
-					
-					$api = new Cloud_Uploads_Api_Handler();
 					$filecount = sizeof($to_sync_files);
 					error_log( print_r( 'Retrying File count is ', true ) );
 					error_log( print_r( $filecount, true ) );
 					for($i = 0; $i < $filecount; $i++) {
 						$file = $to_sync_files[$i];
 						$data = array("url"=>$wp_upload_url['url'].basename($file));
-						//$result = $api->call('api/file', $data, 'POST');
+						$result = $api->call('api/file', $data, 'POST');
 						error_log( print_r( $file, true ) );
-						error_log( print_r( $data, true ) );
+						//error_log( print_r( $data, true ) );
 					}
 
 				} catch ( Exception $e ) {
