@@ -308,6 +308,10 @@ class Cloud_Uploads_Admin {
 						$cloud_total_size = $api_data->stats->cloud->storage;
 					}
 					require_once( dirname( __FILE__ ) . '/templates/account.php' );
+					if ( isset( $api_data->site ) && $api_data->site->upload_writeable ) {
+						require_once( dirname( __FILE__ ) . '/templates/modal-upload.php' );
+						require_once( dirname( __FILE__ ) . '/templates/modal-enable.php' );
+					}
 				} else {
 					require_once( dirname( __FILE__ ) . '/templates/modal-scan.php' );
 					if ( ! empty( $stats['files_finished'] ) && $stats['files_finished'] >= ( time() - DAY_IN_SECONDS ) ) {
