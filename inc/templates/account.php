@@ -17,7 +17,13 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
             <span class="h2 text-nowrap"><?php echo esc_html__($this->size_format_zero( $cloud_size, 2 )); ?><small class="text-muted"> / <?php echo esc_html__(number_format_i18n( $cloud_files )); ?></small></span>
 
             <div class="container p-0 ml-md-3">
-         
+              <?php foreach ( $this->cup_instance->get_filetypes( false, $api_data->stats->site->types ) as $type ) { ?>
+                <div class="row mt-2">
+                  <div class="col-1"><span class="badge badge-pill" style="background-color: <?php echo esc_html__($type->color); ?>">&nbsp;</span></div>
+                  <div class="col-4 lead text-nowrap"><?php echo esc_html__($type->label); ?></div>
+                  <div class="col-5 text-nowrap"><strong><?php echo esc_html__(size_format( $type->size, 2 )); ?> / <?php echo esc_html__(number_format_i18n( $type->files )); ?></strong></div>
+                </div>
+              <?php } ?>
             </div>
           </div>
           <div class="col-lg col-xs-12 text-center mt-5 mt-lg-0 iup-pie-wrapper">
