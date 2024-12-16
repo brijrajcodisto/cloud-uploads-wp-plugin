@@ -16,7 +16,7 @@ class Cloud_Uploads_Api_Handler {
 	 *ś
 	 * @var string (URL)
 	 */
-	public $server_root = 'http://192.168.1.236:3000/';
+	public $server_root = 'https://api.clouduploads.mackshost.com/';
 
 	/**
 	 * Path to the REST API on the server.
