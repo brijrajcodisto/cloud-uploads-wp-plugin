@@ -702,7 +702,7 @@ class Cloud_Uploads_Admin {
 	 * Enable or disable url rewriting
 	 */
 	public function ajax_toggle() {
-		if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( $_POST['nonce'], 'cup_toggle' ) ) {
+		if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( $_POST['nonce'], 'cloud_uploads_toggle' ) ) {
 			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again..', 'cloud-uploads' ) );
 		}
 
@@ -719,9 +719,9 @@ class Cloud_Uploads_Admin {
 	 */
 	public function toggle_cloud( $enabled ) {
 		if ( is_multisite() ) {
-			update_site_option( 'cup_enabled', $enabled );
+			update_site_option( 'cloud_uploads_enabled', $enabled );
 		} else {
-			update_option( 'cup_enabled', $enabled, true );
+			update_option( 'cloud_uploads_enabled', $enabled, true );
 		}
 		if ( $enabled ) {
 
