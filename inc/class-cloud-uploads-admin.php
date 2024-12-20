@@ -564,7 +564,8 @@ class Cloud_Uploads_Admin {
 				$errors[] = sprintf( esc_html__( 'Error uploading %s. Queued for retry.', 'cloud_uploads' ), $file );
 			}
 
-		} else { // we are done with transfer manager, continue any unfinished multipart uploads one by one
+		} 
+		else { // we are done with transfer manager, continue any unfinished multipart uploads one by one
 
 			$to_sync = $wpdb->get_row( "SELECT file, size, errors, transfer_status as upload_id FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 0 AND errors < 3 AND transfer_status IS NOT NULL ORDER BY errors ASC, file ASC LIMIT 1" );
 			if ( $to_sync ) {
@@ -613,6 +614,10 @@ class Cloud_Uploads_Admin {
 				error_log( print_r( 'Done==>>', true ) );
 			}
 		}
+
+		// check status of uploaded files and update status in cloud uploads file table
+		
+
 
 		if ( $is_done || timer_stop() >= $this->ajax_timelimit ) {
 			error_log( print_r( 'Done1==>>', true ) );
