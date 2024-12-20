@@ -77,7 +77,7 @@
 				</div>
 				<div class="row">
 					<div class="col badge badge-pill badge-light text-left p-3">
-						<p class="h5 ml-2 mb-0"><?php echo esc_html( $region_labels[ $api_data->site->region ] ); ?></p></div>
+						<p class="h5 ml-2 mb-0"><?php //echo esc_html( $region_labels[ $api_data->site->region ] ); ?></p></div>
 				</div>
 			</div>
 		</div>
