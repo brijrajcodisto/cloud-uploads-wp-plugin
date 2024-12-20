@@ -744,8 +744,13 @@ class Cloud_Uploads_Admin {
 		}
 	}
 
-  function ajax_status() {
+	public function ajax_status() {
+		// check caps
+		if ( ! current_user_can( $this->capability ) ) {
+			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
+		}
 
-  }
+		wp_send_json_success( $this->get_sync_stats() );
+	}
 }
  
