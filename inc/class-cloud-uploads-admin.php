@@ -698,9 +698,19 @@ class Cloud_Uploads_Admin {
 
   }
 
-  function ajax_toggle() {
+/**
+	 * Enable or disable url rewriting
+	 */
+	public function ajax_toggle() {
+		if ( ! current_user_can( $this->iup_instance->capability ) || ! wp_verify_nonce( $_POST['nonce'], 'iup_toggle' ) ) {
+			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'infinite-uploads' ) );
+		}
 
-  }
+		$enabled = (bool) $_REQUEST['enabled'];
+		$this->iup_instance->toggle_cloud( $enabled );
+
+		wp_send_json_success();
+	}
 
   function ajax_status() {
 
