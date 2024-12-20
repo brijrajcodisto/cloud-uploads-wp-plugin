@@ -632,17 +632,61 @@ class Cloud_Uploads_Admin {
 	}
 }
 
-  function ajax_sync_errors() {
+	public function ajax_sync_errors() {
+		global $wpdb;
 
-  }
+		// check caps
+		if ( ! current_user_can( $this->capability ) ) {
+			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
+		}
 
-  function ajax_reset_errors() {
+		$html       = '';
+		$error_list = $wpdb->get_results( "SELECT file, size FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 0 AND errors >= 3" );
+		foreach ( $error_list as $error ) {
+			$html .= sprintf( '<li class="list-group-item list-group-item-warning">%s - %s</li>', esc_html( $error->file ), size_format( $error->size, 2 ) ) . PHP_EOL;
+		}
+		wp_send_json_success( $html );
+	}
 
-  }
+	public function ajax_reset_errors() {
+		global $wpdb;
 
-  function ajax_delete() {
+		// check caps
+		if ( ! current_user_can( $this->capability ) ) {
+			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
+		}
 
-  }
+		$result = $wpdb->query( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET errors = 0, transferred = 0 WHERE synced = 0 AND errors >= 3" );
+
+		wp_send_json_success( $result );
+	}
+
+	public function ajax_delete() {
+		global $wpdb;
+
+		if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( $_POST['nonce'], 'cloud_uploads_delete' ) ) {
+			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
+		}
+
+		$deleted = 0;
+		$errors  = [];
+		$path    = $this->get_original_upload_dir_root();
+		$break   = false;
+		while ( ! $break ) {
+			$to_delete = $wpdb->get_col( "SELECT file FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 1 AND deleted = 0 LIMIT 500" );
+			foreach ( $to_delete as $file ) {
+				@unlink( $path['basedir'] . $file );
+				$wpdb->update( "{$wpdb->base_prefix}cloud_uploads_files", [ 'deleted' => 1 ], [ 'file' => $file ] );
+				$deleted ++;
+			}
+
+			$is_done = ! (bool) $wpdb->get_var( "SELECT count(*) FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 1 AND deleted = 0" );
+			if ( $is_done || timer_stop() >= $this->ajax_timelimit ) {
+				$break = true;
+				wp_send_json_success( array_merge( compact( 'deleted', 'is_done', 'errors' ), $this->get_sync_stats() ) );
+			}
+		}
+	}
 
   function ajax_download() {
 
