@@ -615,6 +615,7 @@ class Cloud_Uploads_Admin {
 		}
 
 		if ( $is_done || timer_stop() >= $this->ajax_timelimit ) {
+			error_log( print_r( 'Done1==>>', true ) );
 			$break            = true;
 			$permanent_errors = false;
 
