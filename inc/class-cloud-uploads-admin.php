@@ -548,13 +548,14 @@ class Cloud_Uploads_Admin {
 
 			try {
 				$filecount = sizeof($to_sync_files);
-				error_log( print_r( 'File count is ', true ) );
+				error_log( print_r( 'File count is ==> ', true ) );
 				error_log( print_r( $filecount, true ) );
 				
 				for($i = 0; $i < $filecount; $i++) {
 					$file = $to_sync_files[$i];
 					$data = array("url"=>'https://wp.test.mackshost.com/wp-content/uploads'.$file);
 					$result = $api->call('api/file', $data, 'POST');
+					error_log( print_r( $to_sync, true ) );
 					error_log( print_r( $file, true ) );
 					error_log( print_r( $data, true ) );
 				}

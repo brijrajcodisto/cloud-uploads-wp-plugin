@@ -233,7 +233,7 @@ jQuery(document).ready(function ($) {
 					Math.pow(cupLoopErrors, 2.5) * 1000
 				); //max 90s
 				console.log(
-					'Server error. Waiting ' +
+					'Server error in Syncfilelist. Waiting ' +
 					exponentialBackoff +
 					'ms before retrying'
 				);
