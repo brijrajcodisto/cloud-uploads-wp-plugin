@@ -702,14 +702,46 @@ class Cloud_Uploads_Admin {
 	 * Enable or disable url rewriting
 	 */
 	public function ajax_toggle() {
-		if ( ! current_user_can( $this->iup_instance->capability ) || ! wp_verify_nonce( $_POST['nonce'], 'iup_toggle' ) ) {
-			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'infinite-uploads' ) );
+		if ( ! current_user_can( $this->capability ) || ! wp_verify_nonce( $_POST['nonce'], 'cup_toggle' ) ) {
+			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again.', 'cloud-uploads' ) );
 		}
 
 		$enabled = (bool) $_REQUEST['enabled'];
-		$this->iup_instance->toggle_cloud( $enabled );
+		$this->toggle_cloud( $enabled );
 
 		wp_send_json_success();
+	}
+
+		/**
+	 * Enable or disable cloud stream wrapper and url rewriting.
+	 *
+	 * @param bool $enabled
+	 */
+	public function toggle_cloud( $enabled ) {
+		if ( is_multisite() ) {
+			update_site_option( 'cup_enabled', $enabled );
+		} else {
+			update_option( 'cup_enabled', $enabled, true );
+		}
+		if ( $enabled ) {
+
+			//ping the API to let them know we've enabled the site
+			$this->api->call( "site/" . $this->api->get_site_id() . "/enable", [], 'POST', [
+				'timeout'  => 0.01,
+				'blocking' => false,
+			] );
+
+			//not ideal but such a dramatic change of replacing upload dirs and urls can break some plugins/themes
+			wp_cache_flush();
+
+			//Hummingbird plugin
+			do_action( 'wphb_clear_page_cache' );
+
+			//WP rocket plugin
+			if ( function_exists( 'rocket_clean_domain' ) ) {
+				rocket_clean_domain();
+			}
+		}
 	}
 
   function ajax_status() {

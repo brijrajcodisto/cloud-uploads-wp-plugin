@@ -115,6 +115,7 @@ class Cloud_Uploads_Api_Handler {
 	public function get_site_id() {
 		return $this->api_site_id;
 	}
+	
 
 	/**
 	 * Updates the API site_id in the database.
