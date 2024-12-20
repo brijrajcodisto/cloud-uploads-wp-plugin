@@ -556,6 +556,7 @@ class Cloud_Uploads_Admin {
 					$data = array("url"=>'https://wp.test.mackshost.com/wp-content/uploads'.$file);
 					$result = $api->call('api/file', $data, 'POST');
 					error_log( print_r( $result, true ) );
+					$wpdb->query( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET synced = 1 WHERE file = $file" );
 					error_log( print_r( $file, true ) );
 					error_log( print_r( $data, true ) );
 				}
@@ -616,7 +617,7 @@ class Cloud_Uploads_Admin {
 		}
 
 		// check status of uploaded files and update status in cloud uploads file table
-		
+
 
 
 		if ( $is_done || timer_stop() >= $this->ajax_timelimit ) {
