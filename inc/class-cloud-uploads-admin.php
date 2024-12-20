@@ -274,7 +274,7 @@ class Cloud_Uploads_Admin {
 			// 		$cloud_total_size = $api_data->stats->cloud->storage;
 			// 	}
 
-      //   require_once( dirname( __FILE__ ) . '/templates/header-columns.php' );
+        require_once( dirname( __FILE__ ) . '/templates/header-columns.php' );
 
 			// 	if ( ! get_site_option( 'cloud_uploads_enabled' ) ) {
 			// 		require_once( dirname( __FILE__ ) . '/templates/modal-scan.php' );
@@ -284,7 +284,7 @@ class Cloud_Uploads_Admin {
 			// 		}
 			// 	}
 
-			// 	require_once( dirname( __FILE__ ) . '/templates/settings.php' );
+				require_once( dirname( __FILE__ ) . '/templates/settings.php' );
 
 			// 	//require_once( dirname( __FILE__ ) . '/templates/modal-remote-scan.php' );
 			// 	//require_once( dirname( __FILE__ ) . '/templates/modal-delete.php' );
@@ -320,6 +320,7 @@ class Cloud_Uploads_Admin {
 						require_once( dirname( __FILE__ ) . '/templates/welcome.php' );
 					}
 				}
+				
 				require_once( dirname( __FILE__ ) . '/templates/modal-remote-scan.php' );
 				require_once( dirname( __FILE__ ) . '/templates/modal-scan.php' );
 				require_once( dirname( __FILE__ ) . '/templates/modal-delete.php' );
