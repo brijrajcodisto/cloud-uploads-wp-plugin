@@ -556,7 +556,7 @@ class Cloud_Uploads_Admin {
 					$data = array("url"=>'https://wp.test.mackshost.com/wp-content/uploads'.$file);
 					$result = $api->call('api/file', $data, 'POST');
 					error_log( print_r( $result, true ) );
-					$wpdb->query( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET synced = 1 WHERE file = %s", $file );
+					$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET synced = 1 WHERE file = %s", $to_sync->file ) );
 					error_log( print_r( $file, true ) );
 					error_log( print_r( $data, true ) );
 				}
