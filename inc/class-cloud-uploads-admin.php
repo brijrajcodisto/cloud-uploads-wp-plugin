@@ -555,7 +555,7 @@ class Cloud_Uploads_Admin {
 					$file = $to_sync_files[$i];
 					$data = array("url"=>'https://wp.test.mackshost.com/wp-content/uploads'.$file);
 					$result = $api->call('api/file', $data, 'POST');
-					//error_log( print_r( $to_sync, true ) );
+					error_log( print_r( $result, true ) );
 					error_log( print_r( $file, true ) );
 					error_log( print_r( $data, true ) );
 				}
