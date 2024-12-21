@@ -599,7 +599,7 @@ class Cloud_Uploads_Admin {
 					for($i = 0; $i < $filecount; $i++) {
 						$file = $to_sync_files[$i];
 						$data = array("url"=>'https://wp.test.mackshost.com/wp-content/uploads'.$file);
-						$s3Files = $api->call('api/file', ['url' => $data->url,], 'GET');
+						$s3Files = $api->call('api/file', ['url' => $data['url']], 'GET');
 						//$result = $api->call('api/file', $data, 'GET');
 						error_log( print_r( $$s3Files, true ) );
 
