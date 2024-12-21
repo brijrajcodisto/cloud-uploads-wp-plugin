@@ -161,6 +161,7 @@ jQuery(document).ready(function ($) {
 		} else {
 			data.nonce = cloud_uploads_data.nonce.sync;
 		}
+		console.log('Response4 ', cupStopLoop);
 		cupAjaxCall = $.post(
 			ajaxurl + '?action=cloud-uploads-sync',
 			data,
