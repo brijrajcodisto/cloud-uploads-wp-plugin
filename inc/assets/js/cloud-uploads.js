@@ -433,8 +433,9 @@ jQuery(document).ready(function ($) {
 			$('#cup-sync-errors').hide();
 			$('#cup-sync-errors ul').empty();
 			cupStopLoop = false;
-			syncFilelist();
 			console.log('inside upload-modal');
+			syncFilelist();
+			
 			setTimeout(function () {
 				getSyncStatus();
 			}, 15000);
