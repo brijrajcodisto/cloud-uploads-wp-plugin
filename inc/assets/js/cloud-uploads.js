@@ -447,6 +447,7 @@ jQuery(document).ready(function ($) {
 			$('#scan-remote-modal').modal('hide');
 		})
 		.on('hide.bs.modal', function () {
+			console.log('upload modal sent custop')
 			cupStopLoop = true;
 			cupProcessingLoop = false;
 			cupAjaxCall.abort();
