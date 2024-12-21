@@ -164,9 +164,11 @@ jQuery(document).ready(function ($) {
 			ajaxurl + '?action=cloud-uploads-sync',
 			data,
 			function (json) {
+				console.log('Response from cloud uploads sync is ', json);
 				cupLoopErrors = 0;
 				if (json.success) {
-					//$('.cup-progress-pcnt').text(json.data.pcnt_complete);
+					
+					$('.cup-progress-pcnt').text(json.data.pcnt_complete);
 					$('#cup-progress-size').text(json.data.remaining_size);
 					$('#cup-progress-files').text(
 						json.data.remaining_files
@@ -252,6 +254,7 @@ jQuery(document).ready(function ($) {
 		$.get(
 			ajaxurl + '?action=cloud-uploads-status',
 			function (json) {
+				console.log('Response from cloud uploads status is ', json)
 				if (json.success) {
 					$('#cup-progress-size').text(json.data.remaining_size);
 					$('#cup-progress-files').text(

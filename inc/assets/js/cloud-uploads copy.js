@@ -169,7 +169,7 @@ jQuery(document).ready(function ($) {
 				cupLoopErrors = 0;
 				console.log('response from cloud-uploads-sync ', json);
 				if (json.success) {
-					//$('.cup-progress-pcnt').text(json.data.pcnt_complete);
+					$('.cup-progress-pcnt').text(json.data.pcnt_complete);
 					$('#cup-progress-size').text(json.data.remaining_size);
 					$('#cup-progress-files').text(
 						json.data.remaining_files
