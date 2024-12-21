@@ -558,7 +558,7 @@ class Cloud_Uploads_Admin {
 					$data = array("url"=>'https://wp.test.mackshost.com/wp-content/uploads'.$file);
 					$result = $api->call('api/file', $data, 'POST');
 					error_log( print_r( $result, true ) );
-					$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET synced = 1 WHERE file = %s", $file ) );
+					$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET transfer_status = %s WHERE file = %s", $result->id, $file ) );
 					error_log( print_r( $file, true ) );
 					error_log( print_r( $data, true ) );
 				}
@@ -568,7 +568,7 @@ class Cloud_Uploads_Admin {
 			}
 
 		} 
-		else { // we are done with transfer manager, continue any unfinished multipart uploads one by one
+		else { // we are done with transfer manager, continue with s3 upload and update the synced in db
 
 			$to_sync = $wpdb->get_row( "SELECT file, size, errors, transfer_status as upload_id FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 0 AND errors < 3 AND transfer_status IS NOT NULL ORDER BY errors ASC, file ASC LIMIT 1" );
 			if ( $to_sync ) {
@@ -588,17 +588,24 @@ class Cloud_Uploads_Admin {
 					$to_sync_sql[]  = esc_sql( $file->file );
 				}
 				//preset the error count in case request times out. Successful sync will clear error count.
-				$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET errors = ( errors + 1 ) WHERE file = %s", $to_sync->file ) );
+				//$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET errors = ( errors + 1 ) WHERE file = %s", $to_sync->file ) );
 				$to_sync->errors ++; //increment error result so it's accurate
 
 				try {
+					
 					$filecount = sizeof($to_sync_files);
 					error_log( print_r( 'Retrying File count is ', true ) );
 					error_log( print_r( $filecount, true ) );
 					for($i = 0; $i < $filecount; $i++) {
 						$file = $to_sync_files[$i];
 						$data = array("url"=>'https://wp.test.mackshost.com/wp-content/uploads'.$file);
-						$result = $api->call('api/file', $data, 'POST');
+						$s3Files = $api->call('api/file', ['url' => $data->url,], 'GET');
+						//$result = $api->call('api/file', $data, 'GET');
+						error_log( print_r( $$s3Files, true ) );
+
+						if(isset($s3Files[0])) {
+							$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET synced = 1 WHERE file = %s", $file ) );
+						}
 						error_log( print_r( $file, true ) );
 						error_log( print_r( $data, true ) );
 					}
@@ -751,7 +758,10 @@ class Cloud_Uploads_Admin {
 		if ( ! current_user_can( $this->capability ) ) {
 			wp_send_json_error( esc_html__( 'Permissions Error: Please refresh the page and try again...', 'cloud-uploads' ) );
 		}
+		// $result = $api->call('api/file', [], 'GET');
+		// error_log( print_r( $result, true ) );
 
+		//$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET synced = 1 WHERE file = %s", $file ) );
 		wp_send_json_success( $this->get_sync_stats() );
 	}
 }
