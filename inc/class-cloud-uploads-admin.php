@@ -602,8 +602,8 @@ class Cloud_Uploads_Admin {
 						$s3Files = $api->call('api/file', ['url' => $data['url']], 'GET');
 						//$result = $api->call('api/file', $data, 'GET');
 						//error_log( print_r( $s3Files, true ) );
-						$this->sync_debug_log("S3 Files " . $s3Files);
-						if(isset($s3Files[0])) {
+						$this->sync_debug_log("S3 Files " . $s3Files->__toString());
+						if(isset($s3Files)) {
 							$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET synced = 1 WHERE file = %s", $file ) );
 						}
 						error_log( print_r( $file, true ) );
