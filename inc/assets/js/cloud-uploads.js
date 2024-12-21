@@ -182,6 +182,7 @@ jQuery(document).ready(function ($) {
 						.text(json.data.pcnt_complete + '%');
 					if (!json.data.is_done) {
 						data.nonce = json.data.nonce; //save for future errors
+						getSyncStatus();
 						syncFilelist(json.data.nonce);
 					} else {
 						console.log('inside custop true ', json.data.is_done);
