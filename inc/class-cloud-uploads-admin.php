@@ -562,6 +562,8 @@ class Cloud_Uploads_Admin {
 					error_log( print_r( $file, true ) );
 					error_log( print_r( $data, true ) );
 				}
+
+				$is_done = true;
 			} catch ( Exception $e ) {
 				$this->sync_debug_log( "Transfer sync exception: " . $e->__toString() );
 				$errors[] = sprintf( esc_html__( 'Error uploading %s. Queued for retry.', 'cloud_uploads' ), $file );
@@ -760,6 +762,35 @@ class Cloud_Uploads_Admin {
 		}
 		// $result = $api->call('api/file', [], 'GET');
 		// error_log( print_r( $result, true ) );
+
+		$uploaded = 0;
+		$errors   = [];
+		$break    = false;
+		$is_done  = false;
+		$path     = $this->get_original_upload_dir_root();
+		// $wp_upload_url = wp_upload_dir();
+		// $api = new Cloud_Uploads_Api_Handler();
+		$to_sync = $wpdb->get_results( $wpdb->prepare( "SELECT file, size FROM `{$wpdb->base_prefix}cloud_uploads_files` WHERE synced = 0 AND errors < 3 AND transfer_status IS NOT NULL ORDER BY errors ASC, file ASC" ) );
+		if ( $to_sync ) {
+			//build full paths
+			foreach ( $to_sync as $file ) {
+				
+	
+				//$data = array("url"=>'https://wp.test.mackshost.com/wp-content/uploads'.$file);
+
+				$fileFullPath = $path['basedir'] . $file->file;
+				$this->sync_debug_log("File full path " . $s3Files->__toString());
+				//$s3Files = $api->call('api/file', ['url' => $data['url']], 'GET');
+				//$result = $api->call('api/file', $data, 'GET');
+				//error_log( print_r( $s3Files, true ) );
+				//$this->sync_debug_log("S3 Files " . $s3Files->__toString());
+				// if(isset($s3Files)) {
+				// 	$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET synced = 1 WHERE file = %s", $file ) );
+				// }
+				// error_log( print_r( $file, true ) );
+				// error_log( print_r( $data, true ) );
+			}
+		}
 
 		//$wpdb->query( $wpdb->prepare( "UPDATE `{$wpdb->base_prefix}cloud_uploads_files` SET synced = 1 WHERE file = %s", $file ) );
 		wp_send_json_success( $this->get_sync_stats() );
