@@ -563,7 +563,7 @@ class Cloud_Uploads_Admin {
 					error_log( print_r( $data, true ) );
 				}
 
-				$is_done = true;
+				$is_done = false;
 			} catch ( Exception $e ) {
 				$this->sync_debug_log( "Transfer sync exception: " . $e->__toString() );
 				$errors[] = sprintf( esc_html__( 'Error uploading %s. Queued for retry.', 'cloud_uploads' ), $file );
@@ -631,7 +631,7 @@ class Cloud_Uploads_Admin {
 
 
 
-		if ( $is_done || timer_stop() >= $this->ajax_timelimit ) {
+		// if ( $is_done || timer_stop() >= $this->ajax_timelimit ) {
 			error_log( print_r( 'Done1==>>', true ) );
 			$break            = true;
 			$permanent_errors = false;
@@ -645,7 +645,7 @@ class Cloud_Uploads_Admin {
 
 			$nonce = wp_create_nonce( 'cloud_uploads_sync' );
 			wp_send_json_success( array_merge( compact( 'uploaded', 'is_done', 'errors', 'permanent_errors', 'nonce' ), $this->get_sync_stats() ) );
-		}
+		// }
 	}
 }
 
