@@ -183,6 +183,7 @@ jQuery(document).ready(function ($) {
 						data.nonce = json.data.nonce; //save for future errors
 						syncFilelist(json.data.nonce);
 					} else {
+						console.log('inside custop true ', json.data.is_done);
 						cupStopLoop = true;
 						$('#cup-upload-progress').hide();
 						//update values in next modal
