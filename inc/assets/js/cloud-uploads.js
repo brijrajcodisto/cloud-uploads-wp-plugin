@@ -409,6 +409,7 @@ jQuery(document).ready(function ($) {
 			buildFilelist([]);
 		})
 		.on('hide.bs.modal', function () {
+			console.log('scan modal sent custop')
 			cupStopLoop = true;
 			cupProcessingLoop = false;
 		});
@@ -423,6 +424,7 @@ jQuery(document).ready(function ($) {
 			fetchRemoteFilelist(null);
 		})
 		.on('hide.bs.modal', function () {
+			console.log('scan remote modal sent custop')
 			cupStopLoop = true;
 			cupProcessingLoop = false;
 		});
