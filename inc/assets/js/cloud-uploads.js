@@ -165,7 +165,7 @@ jQuery(document).ready(function ($) {
 			ajaxurl + '?action=cloud-uploads-sync',
 			data,
 			function (json) {
-				console.log('Response from cloud uploads sync is ', json);
+				console.log('Response1 from cloud uploads sync is ', json);
 				cupLoopErrors = 0;
 				if (json.success) {
 					
