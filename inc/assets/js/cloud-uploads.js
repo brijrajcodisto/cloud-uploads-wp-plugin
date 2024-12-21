@@ -147,6 +147,7 @@ jQuery(document).ready(function ($) {
 	};
 
 	var syncFilelist = function (nonce = '') {
+		console.log('Cupstop loop ', cupStopLoop);
 		if (cupStopLoop) {
 			cupStopLoop = false;
 			cupProcessingLoop = false;
