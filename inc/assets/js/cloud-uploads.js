@@ -435,7 +435,7 @@ jQuery(document).ready(function ($) {
 			cupStopLoop = false;
 			console.log('inside upload-modal');
 			syncFilelist();
-			
+			console.log('inside upload-modal after syncFilelist');
 			setTimeout(function () {
 				getSyncStatus();
 			}, 15000);
